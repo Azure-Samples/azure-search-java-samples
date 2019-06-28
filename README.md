@@ -14,4 +14,6 @@ products:
 
 This repository contains Java sample code used in Azure Search quickstarts, tutorials, and examples.
 
-We are currently in the process of migrating content to this repository. Target completion date for this work is end of April.
+## Quickstart
+
+This quickstart shows how to create an index, load documents, and run queries using a console app. This app was developed using IntelliJ and JDK 8.1.
