@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.9.9</jackson.version>
         <auto-value.version>1.6.2</auto-value.version>
     </properties>
     <name>azuresearch-console</name>
@@ -50,6 +50,34 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
+                </configuration>
+            </plugin>
+            <!-- Add exec plugin to run demo program -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.microsoft.azure.search.samples.demo.App</mainClass>
+                    <systemProperties>
+                        <systemProperty>
+                            <!-- [Azure Search Service Name - excluding .search.windows.net] -->
+                            <key>SERVICE_NAME</key>
+                            <value>lisasearch1</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <!-- [Enter your Azure Search Service API Key] -->
+                            <key>API_KEY</key>
+                            <value>C41838A48B708BE22D60DDCFEAA6F1B0</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>
