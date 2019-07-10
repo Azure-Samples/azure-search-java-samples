@@ -1,13 +1,10 @@
 package com.microsoft.azure.search.samples.demo;
 
 public class App {
-    // These values are set in pom.xml
-    private static final String SERVICE_NAME = System.getProperty("SERVICE_NAME");
-    private static final String API_KEY = System.getProperty("API_KEY");
-
     public static void main(String[] args) {
-        DemoOperations demoOperations = new DemoOperations(SERVICE_NAME, API_KEY);
         try {
+            AzureSearchConfig config = AzureSearchConfig.fromJson("/azure_search_config");
+            DemoOperations demoOperations = new DemoOperations(config.serviceName(), config.apiKey());
             demoOperations.createIndex();
             demoOperations.indexData();
             Thread.sleep(1000L); // wait a second to allow indexing to happen
@@ -20,4 +17,5 @@ public class App {
             System.err.println("Exception:" + e.getMessage());
         }
     }
+
 }
