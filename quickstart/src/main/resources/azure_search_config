@@ -1,0 +1,4 @@
+{
+    "ServiceName" :  "[Azure Search Service Name - excluding .search.windows.net]",
+    "ApiKey" : "[Enter your Azure Search Service API Key]"
+}

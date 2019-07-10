@@ -66,18 +66,6 @@
                 </executions>
                 <configuration>
                     <mainClass>com.microsoft.azure.search.samples.demo.App</mainClass>
-                    <systemProperties>
-                        <systemProperty>
-                            <!-- [Azure Search Service Name - excluding .search.windows.net] -->
-                            <key>SERVICE_NAME</key>
-                            <value>lisasearch1</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <!-- [Enter your Azure Search Service API Key] -->
-                            <key>API_KEY</key>
-                            <value>C41838A48B708BE22D60DDCFEAA6F1B0</value>
-                        </systemProperty>
-                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>
