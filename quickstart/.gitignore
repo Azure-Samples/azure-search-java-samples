@@ -1,3 +1,10 @@
+# IDEA configurations
+.idea/*
+*.iml
+
+# Output
+target/*
+
 # Compiled class file
 *.class
 
