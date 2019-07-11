@@ -14,7 +14,7 @@ public abstract class AzureSearchConfig {
     public static final String API_KEY = "ApiKey";
 
     static AzureSearchConfig fromJson(String configJsonResourceName) throws java.io.IOException {
-        ObjectMapper configMapper = new ObjectMapper();
+        var configMapper = new ObjectMapper();
 
         URL jsonResource = configMapper.getClass().getResource(configJsonResourceName);
         return configMapper.readValue(jsonResource, AzureSearchConfig.class);

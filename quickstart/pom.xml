@@ -68,6 +68,16 @@
                     <mainClass>com.microsoft.azure.search.samples.demo.App</mainClass>
                 </configuration>
             </plugin>
+            <!-- Specify Java 11 for language level -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <release>11</release>
+                    <target>11</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

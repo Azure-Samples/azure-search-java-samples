@@ -112,7 +112,7 @@ class DemoOperations {
 
 
     void searchAllHotels() throws IOException {
-        SearchOptions options = SearchOptions.builder().includeCount(true).build();
+        var options = SearchOptions.builder().includeCount(true).build();
         SearchResult result = client.search("*", options);
 
         //list search results
@@ -129,7 +129,7 @@ class DemoOperations {
     //Search for hotels with a restaurant and wifi
     //Return the hotel name, description and tags
     void searchTwoTerms() throws IOException {
-        SearchOptions options = SearchOptions.builder()
+        var options = SearchOptions.builder()
                 .select(HOTEL_NAME + "," + DESCRIPTION + "," + TAGS).build();
 
         SearchResult result = client.search("restaurant wifi", options);
@@ -149,7 +149,7 @@ class DemoOperations {
     }
 
     void searchWithFilter() throws IOException {
-        SearchOptions options = SearchOptions.builder()
+        var options = SearchOptions.builder()
                 .select(HOTEL_NAME + "," + RATING)
                 .filter(RATING + " gt 4").build();
 
@@ -166,7 +166,7 @@ class DemoOperations {
         }
     }
     void searchTopTwo() throws IOException {
-        SearchOptions options = SearchOptions.builder()
+        var options = SearchOptions.builder()
                 .select(HOTEL_NAME + "," + CATEGORY)
                 .top(2).build();
 
@@ -184,7 +184,7 @@ class DemoOperations {
     }
 
     void searchOrderResults() throws IOException {
-        SearchOptions options = SearchOptions.builder()
+        var options = SearchOptions.builder()
                 .select(HOTEL_NAME + "," + RATING + "," + TAGS)
                 .orderBy(RATING).build();
 
@@ -200,7 +200,5 @@ class DemoOperations {
                     hit.document().get(RATING));
         }
     }
-
-
 }
 

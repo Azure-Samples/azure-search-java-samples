@@ -73,7 +73,7 @@ public class SearchIndexClient {
     }
 
     private HttpURLConnection httpRequest(String url, String method) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        var connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(method);
         connection.setRequestProperty("content-type", "application/json");
         connection.setRequestProperty("api-key", this.apiKey);
