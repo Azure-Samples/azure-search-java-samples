@@ -25,14 +25,14 @@ This sample shows you how to write a Java client that accesses Azure Search, cre
 ## Prerequisites
 
 - Install [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-- Install a Java 11 SDK such as the one available from [Zulu](https://www.azul.com/downloads/zulu/).
+- Install a Java 11 SDK. An option that does not incur support costs is [Zulu](https://docs.microsoft.com/java/azure/jdk/?view=azure-java-stable).
 - Optional: If you want the option of building outside of IDEA, install [Maven 3](https://maven.apache.org/download.cgi) for the command-line.
 
 ## Setup
 
-1. Clone or download this sample repository.
-2. Use IDEA's "Import Project..." dialog to open the `pom.xml` file. 
-1. Follow the steps in [THIS ARTICLE](tk) to create and configure an Azure Search service.
+1. Clone or download this sample repository
+1. Follow the steps in the article [Create an Azure Search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal) to create and configure an Azure Search service.
+1. Use IDEA's "Import Project..." dialog to open the `pom.xml` file.
 1. Configure access to the search service by editing the file [azure_search_config](src/main/resources/azure_search_config). 
 
 ## Running the sample
