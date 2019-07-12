@@ -12,6 +12,9 @@ import com.microsoft.azure.search.samples.results.SearchResult;
 
 import java.io.IOException;
 import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,22 +32,35 @@ public class SearchIndexClient {
         this.apiKey = apiKey;
     }
 
-    public boolean doesIndexExist() throws IOException {
-        HttpURLConnection connection = httpRequest(buildIndexDefinitionUrl(), "GET");
-        int response = connection.getResponseCode();
-        if (response == HttpURLConnection.HTTP_NOT_FOUND) {
-            return false;
-        }
-        throwOnHttpError(connection);
-        return true;
+    private static HttpResponse<String> sendRequest(HttpRequest request) throws IOException, InterruptedException {
+        var client = HttpClient.newHttpClient();
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public void createIndex(IndexDefinition indexDefinition) throws IOException {
-        HttpURLConnection connection = httpRequest(buildIndexListUrl(), "POST");
-        connection.setDoOutput(true);
+    public boolean doesIndexExist() throws IOException, InterruptedException {
+        var request = httpRequest(buildIndexDefinitionUrl(), "GET").build();
+        var responseCode = sendRequest(request).statusCode();
+        return responseCode != HttpURLConnection.HTTP_NOT_FOUND;
+    }
+
+    /*
+        public boolean doesIndexExist() throws IOException {
+            HttpURLConnection connection = httpRequest(buildIndexDefinitionUrl(), "GET");
+            int response = connection.getResponseCode();
+            if (response == HttpURLConnection.HTTP_NOT_FOUND) {
+                return false;
+            }
+            throwOnHttpError(connection);
+            return true;
+        }
+    */
+    public void createIndex(IndexDefinition indexDefinition) throws IOException, InterruptedException {
         OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).writeValue(
                 connection.getOutputStream(), indexDefinition);
-        throwOnHttpError(connection);
+
+        var request = httpPost(buildIndexListUrl(), indexDefinitionJson).build();
+        var response = sendRequest(request);
+        //TODO: Check if the response code is ACCEPTED or what...
     }
 
     public void deleteIndexIfExists() throws IOException {
@@ -72,12 +88,43 @@ public class SearchIndexClient {
         });
     }
 
+    /*
     private HttpURLConnection httpRequest(String url, String method) throws IOException {
         var connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(method);
         connection.setRequestProperty("content-type", "application/json");
         connection.setRequestProperty("api-key", this.apiKey);
         return connection;
+    }
+     */
+
+    private static HttpRequest.Builder azureJsonRequestBuilder(String url, String apiKey) {
+        var builder = HttpRequest.newBuilder();
+        builder.uri(URI.create(url));
+        builder.setHeader("content-type", "application/json");
+        builder.setHeader("api-key", apiKey);
+        return builder;
+    }
+
+    private HttpRequest.Builder httpRequest(String url, String method) {
+        var builder = azureJsonRequestBuilder(url, this.apiKey);
+        switch (method) {
+            case "GET":
+                builder = builder.GET();
+                break;
+            case "DELETE":
+                builder = builder.DELETE();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Can't create request for method '%s'", method));
+        }
+        return builder;
+    }
+
+    private HttpRequest.Builder httpPost(String url, String contents) {
+        var builder = azureJsonRequestBuilder(url, this.apiKey);
+        builder.POST(HttpRequest.BodyPublishers.ofString(contents));
+        return builder;
     }
 
     private void throwOnHttpError(HttpURLConnection connection) throws IOException {
@@ -99,20 +146,20 @@ public class SearchIndexClient {
 
     private String buildIndexDefinitionUrl() {
         return String.format("https://%s.search.windows.net/indexes/%s?api-version=%s", this.serviceName,
-                             this.indexName, API_VERSION);
+                this.indexName, API_VERSION);
     }
 
     private String buildIndexingUrl() {
         return String.format("https://%s.search.windows.net/indexes/%s/docs/index?api-version=%s", this.serviceName,
-                             this.indexName, API_VERSION);
+                this.indexName, API_VERSION);
     }
 
 
     private String buildSearchUrl(String search, SearchOptions options) throws IOException {
         StringBuilder url = new StringBuilder(
                 String.format("https://%s.search.windows.net/indexes/%s/docs?api-version=%s&search=%s&$count=%s",
-                              this.serviceName, this.indexName, API_VERSION, URLEncoder.encode(search, "UTF-8"),
-                              options.includeCount().orElse(false)));
+                        this.serviceName, this.indexName, API_VERSION, URLEncoder.encode(search, "UTF-8"),
+                        options.includeCount().orElse(false)));
         if (options.filter().isPresent()) {
             url.append("&$filter=").append(URLEncoder.encode(options.filter().get(), "UTF-8"));
         }
