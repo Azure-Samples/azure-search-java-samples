@@ -1,7 +1,8 @@
-package service;
+package com.microsoft.azure.search.samples.service;
 
-import static service.SearchServiceHelper.isSuccessResponse;
-import static service.SearchServiceHelper.logMessage;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.logMessage;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.isSuccessResponse;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.logMessage;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

@@ -1,4 +1,4 @@
-package model;
+package com.microsoft.azure.search.samples.model;
 
 import java.util.ArrayList;
 import java.util.List;
