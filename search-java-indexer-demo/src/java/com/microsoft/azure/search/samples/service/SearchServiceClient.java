@@ -4,16 +4,16 @@ import javax.json.*;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-import static com.microsoft.azure.search.samples.service.SearchServiceHelper.isSuccessResponse;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.isSuccessResponseOld;
 import static com.microsoft.azure.search.samples.service.SearchServiceHelper.logMessage;
 
 /**
@@ -28,20 +28,62 @@ public class SearchServiceClient {
         _properties = properties;
     }
 
-    public boolean createIndex() throws IOException {
-        logMessage("\n Creating Index...");
+    private static HttpRequest.Builder azureJsonRequestBuilder(URI uri, String apiKey) {
+        var builder = HttpRequest.newBuilder();
+        builder.uri(uri);
+        builder.setHeader("content-type", "application/json");
+        builder.setHeader("api-key", apiKey);
+        return builder;
+    }
 
-        URL url = com.microsoft.azure.search.samples.service.SearchServiceHelper.getCreateIndexURL(_properties);
+    private HttpRequest.Builder httpRequest(String uri, String method) {
+        var builder = azureJsonRequestBuilder(URI.create(uri), this._apiKey);
+        switch (method) {
+            case "GET":
+                builder = builder.GET();
+                break;
+            case "DELETE":
+                builder = builder.DELETE();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Can't create request for method '%s'", method));
+        }
+        return builder;
+    }
 
-        HttpsURLConnection connection = com.microsoft.azure.search.samples.service.SearchServiceHelper.getHttpURLConnection(url, "PUT", _apiKey);
-        connection.setDoOutput(true);
+    private HttpRequest.Builder httpPost(String uri, String contents) {
+        var builder = azureJsonRequestBuilder(URI.create(uri), this._apiKey);
+        builder.POST(HttpRequest.BodyPublishers.ofString(contents));
+        return builder;
+    }
 
-        Files.copy(Paths.get("index.json"), connection.getOutputStream());
+    private HttpRequest.Builder httpPut(URI uri, String contents) {
+        var builder = azureJsonRequestBuilder(uri, this._apiKey);
+        builder.PUT(HttpRequest.BodyPublishers.ofString(contents));
+        return builder;
+    }
 
-        System.out.println(connection.getResponseMessage());
-        System.out.println(connection.getResponseCode());
 
-        return isSuccessResponse(connection);
+    public String loadIndexDefinitionFile(String resourcePath) throws IOException
+    {
+        var inputStream = SearchServiceClient.class.getResourceAsStream(resourcePath);
+        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    private static HttpResponse<String> sendRequest(HttpRequest request) throws IOException, InterruptedException {
+        var client = HttpClient.newHttpClient();
+        logMessage(String.format("\n %sing to %s", request.method(), request.uri()));
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public boolean createIndex() throws MalformedURLException, IOException, InterruptedException {
+        logMessage("\n Creating index...");
+        var endpoint = SearchServiceHelper.getCreateIndexURL(_properties);
+        var indexDef = loadIndexDefinitionFile("index.json");
+        var request = httpPut(endpoint, indexDef).build();
+        var response = sendRequest(request);
+        return SearchServiceHelper.isSuccessResponse(response);
     }
 
     public boolean createDatasource() throws IOException {
@@ -62,7 +104,7 @@ public class SearchServiceClient {
         System.out.println(connection.getResponseMessage());
         System.out.println(connection.getResponseCode());
 
-        return isSuccessResponse(connection);
+        return isSuccessResponseOld(connection);
     }
 
     public boolean createIndexer() throws IOException {
@@ -83,7 +125,7 @@ public class SearchServiceClient {
         System.out.println(connection.getResponseMessage());
         System.out.println(connection.getResponseCode());
 
-        return isSuccessResponse(connection);
+        return isSuccessResponseOld(connection);
     }
 
     public boolean syncIndexerData() throws IOException, InterruptedException {
@@ -149,7 +191,7 @@ public class SearchServiceClient {
             System.out.println(connection.getResponseMessage());
             System.out.println(connection.getResponseCode());
 
-            if (isSuccessResponse(connection)) {
+            if (isSuccessResponseOld(connection)) {
                 return Optional.of(jsonArray.stream());
             }
 
