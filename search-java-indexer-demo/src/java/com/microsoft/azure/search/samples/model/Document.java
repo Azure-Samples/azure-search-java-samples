@@ -2,6 +2,7 @@ package com.microsoft.azure.search.samples.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -116,8 +117,12 @@ public class Document {
 	public void setRooms(List<Room> rooms) {
 		this.rooms = rooms;
 	}
-	
-	public static Document FromJsonObject(JsonObject object) {
+
+	public static Optional<Document> fromJsonValue(JsonValue jsonObject) {
+		return jsonObject instanceof JsonObject ? Optional.of(fromJsonObject((JsonObject) jsonObject)) : Optional.empty();
+	}
+
+	private static Document fromJsonObject(JsonObject object) {
 		Document d = new Document();
 		d.setHotelId(object.getString("HotelId"));
 		d.setHotelName(object.getString("HotelName"));
