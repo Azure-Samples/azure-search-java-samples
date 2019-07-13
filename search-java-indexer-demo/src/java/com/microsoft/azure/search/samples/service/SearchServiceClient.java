@@ -165,6 +165,7 @@ public class SearchServiceClient {
     }
 
     public Optional<String> performQuery(String searchString) {
+        // Search, convert results to strings, combine those results
         var maybeResult = doSearch(Optional.of(searchString))
                 .flatMap(jsonResults -> Optional.of(jsonResults.map(this::jsonValueToString)))
                 .flatMap(stringResults -> Optional.of(stringResults.reduce(new StringBuilder(), StringBuilder::append, StringBuilder::append)))
