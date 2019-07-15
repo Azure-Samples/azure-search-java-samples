@@ -1,13 +1,9 @@
 package com.microsoft.azure.search.samples.service;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Formatter;
 import java.util.Properties;
@@ -82,5 +78,31 @@ public class SearchServiceHelper {
         }
 
         return false;
+    }
+    
+    public static HttpRequest httpRequest(URI uri, String apiKey, String method, String contents) {
+        contents = contents == null ? "" : contents;
+        var builder = HttpRequest.newBuilder();
+        builder.uri(uri);
+        builder.setHeader("content-type", "application/json");
+        builder.setHeader("api-key", apiKey);
+
+        switch (method) {
+            case "GET":
+                builder = builder.GET();
+                break;
+            case "DELETE":
+                builder = builder.DELETE();
+                break;
+            case "PUT":
+                builder = builder.PUT(HttpRequest.BodyPublishers.ofString(contents));
+                break;
+            case "POST":
+                builder = builder.POST(HttpRequest.BodyPublishers.ofString(contents));
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Can't create request for method '%s'", method));
+        }
+        return builder.build();
     }
 }

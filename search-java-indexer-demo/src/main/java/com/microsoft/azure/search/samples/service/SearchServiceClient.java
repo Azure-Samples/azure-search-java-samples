@@ -36,35 +36,9 @@ public class SearchServiceClient {
         _properties = properties;
     }
 
-    // No matter the method or contents, need to set api-key
-    private static HttpRequest.Builder azureJsonRequestBuilder(URI uri, String apiKey) {
-        var builder = HttpRequest.newBuilder();
-        builder.uri(uri);
-        builder.setHeader("content-type", "application/json");
-        builder.setHeader("api-key", apiKey);
-        return builder;
-    }
-
-    private HttpRequest httpRequest(URI uri, String method, String contents) {
-        contents = contents == null ? "" : contents;
-        var builder = azureJsonRequestBuilder(uri, this._apiKey);
-        switch (method) {
-            case "GET":
-                builder = builder.GET();
-                break;
-            case "DELETE":
-                builder = builder.DELETE();
-                break;
-            case "PUT":
-                builder = builder.PUT(HttpRequest.BodyPublishers.ofString(contents));
-                break;
-            case "POST":
-                builder = builder.POST(HttpRequest.BodyPublishers.ofString(contents));
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("Can't create request for method '%s'", method));
-        }
-        return builder.build();
+    private HttpRequest httpRequest(URI endpoint, String method, String contents)
+    {
+        return SearchServiceHelper.httpRequest(endpoint, this._apiKey, method, contents);
     }
 
     private static HttpResponse<String> sendRequest(HttpRequest request) throws IOException, InterruptedException {
