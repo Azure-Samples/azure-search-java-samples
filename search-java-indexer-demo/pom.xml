@@ -3,7 +3,7 @@
   <groupId>AzureSearchSample</groupId>
   <artifactId>AzureSearchSample</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <build>
     <sourceDirectory>src</sourceDirectory>    
     <plugins>
@@ -28,6 +28,7 @@
             </executions>
             <configuration>
                 <mainClass>com.microsoft.azure.search.samples.app.App</mainClass>
+                <cleanupDaemonThreads>false</cleanupDaemonThreads>
                </configuration>
         </plugin>
     </plugins>
@@ -37,12 +38,6 @@
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.json</artifactId>
 			<version>1.0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
