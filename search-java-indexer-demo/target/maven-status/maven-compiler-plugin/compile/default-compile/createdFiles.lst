@@ -1,7 +1,0 @@
-com\microsoft\azure\search\samples\service\SearchServiceHelper.class
-com\microsoft\azure\search\samples\model\Location.class
-com\microsoft\azure\search\samples\model\Room.class
-com\microsoft\azure\search\samples\service\SearchServiceClient.class
-com\microsoft\azure\search\samples\model\Address.class
-com\microsoft\azure\search\samples\model\Document.class
-com\microsoft\azure\search\samples\app\App.class

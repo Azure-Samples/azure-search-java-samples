@@ -1,10 +1,11 @@
 package com.microsoft.azure.search.samples.service;
 
-import javax.json.*;
-import javax.net.ssl.HttpsURLConnection;
+import javax.json.Json;
+import javax.json.JsonValue;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.*;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -13,8 +14,14 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-import static com.microsoft.azure.search.samples.service.SearchServiceHelper.isSuccessResponseOld;
 import static com.microsoft.azure.search.samples.service.SearchServiceHelper.logMessage;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.getIndexerStatusURL;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.getCreateIndexURL;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.getSearchURL;
+import static com.microsoft.azure.search.samples.service.SearchServiceHelper.isSuccessResponse;
+
+
+
 
 /**
  * This class is responsible for implementing HTTP operations for creating Index, creating indexer, creating indexer datasource, ...
@@ -28,6 +35,7 @@ public class SearchServiceClient {
         _properties = properties;
     }
 
+    // No matter the method or contents, need to set api-key
     private static HttpRequest.Builder azureJsonRequestBuilder(URI uri, String apiKey) {
         var builder = HttpRequest.newBuilder();
         builder.uri(uri);
@@ -36,8 +44,9 @@ public class SearchServiceClient {
         return builder;
     }
 
-    private HttpRequest.Builder httpRequest(String uri, String method) {
-        var builder = azureJsonRequestBuilder(URI.create(uri), this._apiKey);
+    private HttpRequest httpRequest(URI uri, String method, String contents) {
+        contents = contents == null ? "" : contents;
+        var builder = azureJsonRequestBuilder(uri, this._apiKey);
         switch (method) {
             case "GET":
                 builder = builder.GET();
@@ -45,29 +54,16 @@ public class SearchServiceClient {
             case "DELETE":
                 builder = builder.DELETE();
                 break;
+            case "PUT":
+                builder = builder.PUT(HttpRequest.BodyPublishers.ofString(contents));
+                break;
+            case "POST":
+                builder = builder.POST(HttpRequest.BodyPublishers.ofString(contents));
+                break;
             default:
                 throw new IllegalArgumentException(String.format("Can't create request for method '%s'", method));
         }
-        return builder;
-    }
-
-    private HttpRequest.Builder httpPost(String uri, String contents) {
-        var builder = azureJsonRequestBuilder(URI.create(uri), this._apiKey);
-        builder.POST(HttpRequest.BodyPublishers.ofString(contents));
-        return builder;
-    }
-
-    private HttpRequest.Builder httpPut(URI uri, String contents) {
-        var builder = azureJsonRequestBuilder(uri, this._apiKey);
-        builder.PUT(HttpRequest.BodyPublishers.ofString(contents));
-        return builder;
-    }
-
-
-    public String loadIndexDefinitionFile(String resourcePath) throws IOException
-    {
-        var inputStream = SearchServiceClient.class.getResourceAsStream(resourcePath);
-        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        return builder.build();
     }
 
     private static HttpResponse<String> sendRequest(HttpRequest request) throws IOException, InterruptedException {
@@ -77,121 +73,113 @@ public class SearchServiceClient {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public boolean createIndex() throws MalformedURLException, IOException, InterruptedException {
-        logMessage("\n Creating index...");
-        var endpoint = SearchServiceHelper.getCreateIndexURL(_properties);
-        var indexDef = loadIndexDefinitionFile("index.json");
-        var request = httpPut(endpoint, indexDef).build();
-        var response = sendRequest(request);
-        return SearchServiceHelper.isSuccessResponse(response);
+    public String loadIndexDefinitionFile(String resourcePath) throws IOException {
+        var inputStream = SearchServiceClient.class.getResourceAsStream(resourcePath);
+        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     }
 
-    public boolean createDatasource() throws IOException {
+    public boolean createIndex() throws IOException, InterruptedException {
+        logMessage("\n Creating index...");
+        var endpoint = getCreateIndexURL(_properties);
+        var indexDef = loadIndexDefinitionFile("index.json");
+        var request = httpRequest(endpoint, "PUT", indexDef);
+        var response = sendRequest(request);
+        return isSuccessResponse(response);
+    }
+
+    public boolean createDatasource() throws IOException, InterruptedException {
         logMessage("\n Creating Indexer Data Source...");
 
-        URL url = SearchServiceHelper.getCreateIndexerDatasourceURL(_properties);
-        HttpsURLConnection connection = SearchServiceHelper.getHttpURLConnection(url, "PUT", _apiKey);
-        connection.setDoOutput(true);
-
-        String dataSourceRequestBody = "{ 'description' : 'Hotels Dataset','type' : '" + _properties.getProperty("DataSourceType")
+        var endpoint = SearchServiceHelper.getCreateIndexerDatasourceURL(_properties);
+        var dataSourceRequestBody = "{ 'description' : 'Hotels Dataset','type' : '" + _properties.getProperty("DataSourceType")
                 + "','credentials' : " + _properties.getProperty("DataSourceConnectionString")
                 + ",'container' : { 'name' : '" + _properties.getProperty("DataSourceTable") + "' }} ";
-
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
-        outputStreamWriter.write(dataSourceRequestBody);
-        outputStreamWriter.close();
-
-        System.out.println(connection.getResponseMessage());
-        System.out.println(connection.getResponseCode());
-
-        return isSuccessResponseOld(connection);
+        var request = httpRequest(endpoint, "PUT", dataSourceRequestBody);
+        var response = sendRequest(request);
+        return isSuccessResponse(response);
     }
 
-    public boolean createIndexer() throws IOException {
+    public boolean createIndexer() throws IOException, InterruptedException {
         logMessage("\n Creating Indexer...");
 
-        URL url = SearchServiceHelper.getCreateIndexerURL(_properties);
-        HttpsURLConnection connection = SearchServiceHelper.getHttpURLConnection(url, "PUT", _apiKey);
-        connection.setDoOutput(true);
-
-        String indexerRequestBody = "{ 'description' : 'Hotels data indexer', 'dataSourceName' : '" + _properties.get("DataSourceName")
+        var endpoint = SearchServiceHelper.getCreateIndexerURL(_properties);
+        var indexerRequestBody = "{ 'description' : 'Hotels data indexer', 'dataSourceName' : '" + _properties.get("DataSourceName")
                 + "', 'targetIndexName' : '" + _properties.get("IndexName")
                 + "' ,'parameters' : { 'maxFailedItems' : 10, 'maxFailedItemsPerBatch' : 5, 'base64EncodeKeys': false }}";
 
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
-        outputStreamWriter.write(indexerRequestBody);
-        outputStreamWriter.close();
-
-        System.out.println(connection.getResponseMessage());
-        System.out.println(connection.getResponseCode());
-
-        return isSuccessResponseOld(connection);
+        var request = httpRequest(endpoint, "PUT", indexerRequestBody);
+        var response = sendRequest(request);
+        return isSuccessResponse(response);
     }
 
-    public boolean syncIndexerData() throws IOException, InterruptedException {
-        // Check indexer status
-        logMessage("Synchronization running...");
+    // Returns true if response contains JSON whose last result's status reports count of synch results
+    private boolean isSynchronizationStillRunning(HttpResponse<String> response) {
+        var responseJson = Optional.ofNullable(Json.createReader(new StringReader(response.body())).readObject());
+        if (responseJson.isEmpty()) {
+            // ??? Check
+            return true;
+        } else {
+            var responseBody = responseJson.get();
+            var lastResultObject = responseBody.getJsonObject("lastResult");
 
-        boolean running = true;
-        URL statusURL = SearchServiceHelper.getIndexerStatusURL(_properties);
-        HttpsURLConnection connection = SearchServiceHelper.getHttpURLConnection(statusURL, "GET", _apiKey);
+            if (lastResultObject != null) {
+                String indexerStatus = lastResultObject.getString("status");
 
-        while (running) {
-            try {
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                if (indexerStatus.equalsIgnoreCase("inProgress")) {
+                    // Still running...
+                    return true;
+                } else {
+                    logMessage("Synchronized " + lastResultObject.getInt("itemsProcessed") + " rows...");
                     return false;
                 }
+            }
+            // ??? Check
+            return true;
+        }
+    }
 
-                JsonReader jsonReader = Json.createReader(connection.getInputStream());
-                JsonObject responseJson = jsonReader.readObject();
+    // Synchronously makes status requests of indexer, repeating every second until indexer finishes. Returns true unless indexing status request results in bad status code.
+    public boolean syncIndexerData() throws IOException, InterruptedException {
+        // Check indexer status
+        logMessage("\n Synchronization running...");
 
-                if (responseJson != null) {
-                    JsonObject lastResultObject = responseJson.getJsonObject("lastResult");
-
-                    if (lastResultObject != null) {
-                        String indexerStatus = lastResultObject.getString("status");
-
-                        if (indexerStatus.equalsIgnoreCase("inProgress")) {
-                            logMessage("Synchronization running...");
-                            Thread.sleep(1000);
-                            statusURL = SearchServiceHelper.getIndexerStatusURL(_properties);
-                            connection = SearchServiceHelper.getHttpURLConnection(statusURL, "GET", _apiKey);
-
-                        } else {
-                            running = false;
-                            logMessage("Synchronized " + lastResultObject.getInt("itemsProcessed") + " rows...");
-                        }
-                    }
+        boolean running = true;
+        var statusURL = getIndexerStatusURL(_properties);
+        // Loop until either request fails or synchronization completes
+        while (running) {
+            try {
+                var request = httpRequest(statusURL, "GET", null);
+                var response = sendRequest(request);
+                if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+                    return false;
                 }
-            } catch (Exception e) {
-                // Indexer status is slow to update initially, this loop will help us catch up.
-                Thread.sleep(1000);
-                statusURL = SearchServiceHelper.getIndexerStatusURL(_properties);
-                connection = SearchServiceHelper.getHttpURLConnection(statusURL, "GET", _apiKey);
+                running = isSynchronizationStillRunning(response);
+            } finally {
+                if (running) {
+                    logMessage("Synchronization running...");
+                    // Pause a second and hit the status URL again
+                    Thread.sleep(1000);
+                }
             }
         }
-
         return true;
     }
 
     // Queries...
 
-    private Optional<Stream<JsonValue>> doSearch(Optional<String> maybeSearchString) {
-        var searchString = maybeSearchString.orElse("*");
-
+    private Optional<Stream<JsonValue>> doSearch(String searchString) {
         try {
-            URL url = SearchServiceHelper.getSearchURL(_properties, URLEncoder.encode(searchString, java.nio.charset.StandardCharsets.UTF_8.toString()));
-            HttpsURLConnection connection = SearchServiceHelper.getHttpURLConnection(url, "GET", _properties.getProperty("SearchServiceApiKey"));
+            var uri = getSearchURL(_properties, searchString);
+            var request = httpRequest(uri, "GET", null);
+            var response = sendRequest(request);
 
-            JsonReader jsonReader = Json.createReader(connection.getInputStream());
-            JsonObject jsonObject = jsonReader.readObject();
-            JsonArray jsonArray = jsonObject.getJsonArray("value");
+            var jsonReader = Json.createReader(new StringReader(response.body()));
+            var jsonArray = jsonReader.readObject().getJsonArray("value");
             jsonReader.close();
 
-            System.out.println(connection.getResponseMessage());
-            System.out.println(connection.getResponseCode());
+            System.out.println(String.format("Query result statuscode: %d", response.statusCode()));
 
-            if (isSuccessResponseOld(connection)) {
+            if (isSuccessResponse(response)) {
                 return Optional.of(jsonArray.stream());
             }
 
@@ -207,12 +195,14 @@ public class SearchServiceClient {
     }
 
     public Optional<String> performQuery(String searchString) {
+        searchString = searchString == null ? "*" : searchString;
         // Search, convert results to strings, combine those results
-        var maybeResult = doSearch(Optional.of(searchString))
-                .flatMap(jsonResults -> Optional.of(jsonResults.map(this::jsonValueToString)))
-                .flatMap(stringResults -> Optional.of(stringResults.reduce(new StringBuilder(), StringBuilder::append, StringBuilder::append)))
-                .flatMap(sb -> Optional.of(sb.toString()));
-        return maybeResult;
+        var maybeResult = doSearch(searchString);
+        return maybeResult.flatMap(jsonResults -> {
+            var jsonStrings = jsonResults.map(this::jsonValueToString);
+            var singleResult = jsonStrings.reduce(new StringBuilder(), StringBuilder::append, StringBuilder::append).toString();
+            return Optional.of(singleResult);
+        });
     }
 
     private void queryAndPrint(String queryString) {
@@ -222,6 +212,7 @@ public class SearchServiceClient {
 
     public void performQueries() {
         queryAndPrint("*");
+        queryAndPrint("")
     }
 
 }

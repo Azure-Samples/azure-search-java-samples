@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.http.HttpResponse;
 import java.util.Formatter;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 /**
  * Helper class that contains static helper methods.
@@ -24,68 +25,37 @@ public class SearchServiceHelper {
     private static final String _runIndexerURL = "https://%s.search.windows.net/indexers/%s/run?api-version=%s";
     private static final String _getIndexerStatusURL = "https://%s.search.windows.net/indexers/%s/status?api-version=%s";
 
-    public static URL getSearchURL(Properties properties, String query) throws MalformedURLException {
+    private static URI buildURI(Consumer<Formatter> fmtFn)
+    {
         Formatter strFormatter = new Formatter();
-        strFormatter.format(_searchURL, properties.get("SearchServiceName"), properties.get("IndexName"), properties.get("ApiVersion"), query);
+        fmtFn.accept(strFormatter);
         String url = strFormatter.out().toString();
         strFormatter.close();
-
-        return new URL(url);
-    }
-
-    public static URI getCreateIndexURL(Properties properties) throws MalformedURLException {
-
-        Formatter strFormatter = new Formatter();
-        strFormatter.format(_createIndexURL, properties.get("SearchServiceName"), properties.get("IndexName"), properties.get("ApiVersion"));
-        String url = strFormatter.out().toString();
-        strFormatter.close();
-
         return URI.create(url);
     }
 
-    public static URL getCreateIndexerURL(Properties properties) throws MalformedURLException {
-        Formatter strFormatter = new Formatter();
-        strFormatter.format(_createIndexerURL, properties.get("SearchServiceName"), properties.get("IndexerName"), properties.get("ApiVersion"));
-        String url = strFormatter.out().toString();
-        strFormatter.close();
-
-        return new URL(url);
+    public static URI getSearchURL(Properties properties, String query) {
+        return buildURI(strFormatter -> strFormatter.format(_searchURL, properties.get("SearchServiceName"), properties.get("IndexName"), properties.get("ApiVersion"), query));
     }
 
-    public static URL getCreateIndexerDatasourceURL(Properties properties) throws MalformedURLException {
-        Formatter strFormatter = new Formatter();
-        strFormatter.format(_createIndexerDatasourceURL, properties.get("SearchServiceName"), properties.get("DataSourceName"), properties.get("ApiVersion"));
-        String url = strFormatter.out().toString();
-        strFormatter.close();
-
-        return new URL(url);
+    public static URI getCreateIndexURL(Properties properties) {
+        return buildURI(strFormatter -> strFormatter.format(_createIndexURL, properties.get("SearchServiceName"), properties.get("IndexName"), properties.get("ApiVersion")));
     }
 
-    public static URL getRunIndexerURL(Properties properties) throws MalformedURLException {
-        Formatter strFormatter = new Formatter();
-        strFormatter.format(_runIndexerURL, properties.get("SearchServiceName"), properties.get("IndexerName"), properties.get("ApiVersion"));
-        String url = strFormatter.out().toString();
-        strFormatter.close();
-
-        return new URL(url);
+    public static URI getCreateIndexerURL(Properties properties) {
+        return buildURI(strFormatter -> strFormatter.format(_createIndexerURL, properties.get("SearchServiceName"), properties.get("IndexerName"), properties.get("ApiVersion")));
     }
 
-    public static URL getIndexerStatusURL(Properties properties) throws MalformedURLException {
-        Formatter strFormatter = new Formatter();
-        strFormatter.format(_getIndexerStatusURL, properties.get("SearchServiceName"), properties.get("IndexerName"), properties.get("ApiVersion"));
-        String url = strFormatter.out().toString();
-        strFormatter.close();
-
-        return new URL(url);
+    public static URI getCreateIndexerDatasourceURL(Properties properties) {
+        return buildURI(strFormatter -> strFormatter.format(_createIndexerDatasourceURL, properties.get("SearchServiceName"), properties.get("DataSourceName"), properties.get("ApiVersion")));
     }
 
-    public static HttpsURLConnection getHttpURLConnection(URL url, String method, String apiKey) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        connection.setRequestMethod(method);
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("api-key", apiKey);
+    public static URI getRunIndexerURL(Properties properties) {
+        return buildURI(strFormatter -> strFormatter.format(_runIndexerURL, properties.get("SearchServiceName"), properties.get("IndexerName"), properties.get("ApiVersion")));
+    }
 
-        return connection;
+    public static URI getIndexerStatusURL(Properties properties) {
+        return buildURI(strFormatter -> strFormatter.format(_getIndexerStatusURL, properties.get("SearchServiceName"), properties.get("IndexerName"), properties.get("ApiVersion")));
     }
 
     public static void logMessage(String message) {
@@ -105,34 +75,6 @@ public class SearchServiceHelper {
             var msg = response.body();
             if (msg != null) {
                 logMessage(String.format("\n ERROR: %s", msg));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public static boolean isSuccessResponseOld(HttpsURLConnection connection) {
-        try {
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_ACCEPTED
-                    || responseCode == HttpURLConnection.HTTP_NO_CONTENT || responseCode == HttpsURLConnection.HTTP_CREATED) {
-                return true;
-            }
-
-            // We got an error
-            if (connection.getErrorStream() != null) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-                String inputLine;
-
-                while ((inputLine = in.readLine()) != null) {
-                    logMessage(inputLine);
-                }
-
-                in.close();
             }
 
         } catch (Exception e) {

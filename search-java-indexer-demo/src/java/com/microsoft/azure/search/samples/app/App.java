@@ -21,8 +21,11 @@ public class App {
             client.createIndex();
             client.createDatasource();
             client.createIndexer();
-            client.syncIndexerData();
-            client.performQueries();
+            if (client.syncIndexerData()) {
+                client.performQueries();
+            }else {
+                System.err.print("Data indexing failed.");
+            }
         } catch (Exception e) {
             System.err.println("Exception:" + e.getMessage());
             e.printStackTrace();
