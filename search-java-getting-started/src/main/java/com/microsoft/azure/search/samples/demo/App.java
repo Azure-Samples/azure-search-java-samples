@@ -7,8 +7,10 @@ public class App {
     private static final String API_KEY = "";
 
     public static void main(String[] args) {
-        DemoOperations demoOperations = new DemoOperations(SERVICE_NAME, API_KEY);
         try {
+            var config = AzureSearchConfig.fromJson("/azure_search_config");
+            var demoOperations = new DemoOperations(config);
+
             demoOperations.createIndex();
             demoOperations.indexData();
             Thread.sleep(1000L); // wait a second to allow indexing to happen

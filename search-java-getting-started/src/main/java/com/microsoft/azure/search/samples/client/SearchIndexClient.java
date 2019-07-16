@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SearchIndexClient {
-    private static final String API_VERSION = "2017-11-11-Preview";
+    private static final String API_VERSION = "2019-05-06";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new Jdk8Module());
 
     private final String serviceName;

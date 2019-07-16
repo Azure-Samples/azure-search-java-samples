@@ -49,8 +49,8 @@ class DemoOperations {
     private static final String INDEX_NAME = "hotels";
     private SearchIndexClient client;
 
-    DemoOperations(String serviceName, String apiKey) {
-        this.client = new SearchIndexClient(serviceName, INDEX_NAME, apiKey);
+    DemoOperations(AzureSearchConfig config) {
+        this.client = new SearchIndexClient(config.serviceName(), INDEX_NAME, config.apiKey());
     }
 
     // Indexes may be created via the management UI in portal.azure.com or via APIs. In addition to field
