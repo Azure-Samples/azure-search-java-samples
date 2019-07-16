@@ -50,12 +50,12 @@ class DemoOperations {
     private SearchIndexClient client;
 
     DemoOperations(AzureSearchConfig config) {
-        this.client = new SearchIndexClient(config.serviceName(), INDEX_NAME, config.apiKey());
+        this.client = new SearchIndexClient(config);
     }
 
     // Indexes may be created via the management UI in portal.azure.com or via APIs. In addition to field
     // details index definitions include options for custom scoring, suggesters and more
-    void createIndex() throws IOException {
+    void createIndex() throws IOException, InterruptedException {
         // Typical application initialization may createIndex an index if it doesn't exist. Deleting an index
         // on initialization is a sample-only thing to do
         client.deleteIndexIfExists();
@@ -163,7 +163,7 @@ class DemoOperations {
                         true);
     }
 
-    void indexData() throws IOException {
+    void indexData() throws IOException, InterruptedException {
         // In this case we createIndex sample data in-memory. Typically this will come from another database, file or
         // API and will be turned into objects with the desired shape for indexing
         List<IndexOperation> ops = new ArrayList<>();

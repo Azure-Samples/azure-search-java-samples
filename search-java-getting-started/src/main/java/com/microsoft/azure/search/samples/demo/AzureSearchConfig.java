@@ -9,8 +9,13 @@ import java.net.URL;
 
 @AutoValue
 public abstract class AzureSearchConfig {
+    // These string values MUST have equivalent keys in the `azure_search_config` JSON file
     public static final String SERVICE_NAME = "ServiceName";
     public static final String API_KEY = "ApiKey";
+    public static final String INDEX_NAME = "IndexName";
+    public static final String INDEXER_NAME = "IndexerName";
+    public static final String API_VERSION = "ApiVersion";
+    public static final String DATASOURCE_NAME = "DatasourceName";
 
     static AzureSearchConfig fromJson(String configJsonResourceName) throws java.io.IOException {
         ObjectMapper configMapper = new ObjectMapper();
@@ -25,9 +30,27 @@ public abstract class AzureSearchConfig {
     @JsonProperty(API_KEY)
     public abstract String apiKey();
 
+    @JsonProperty(INDEX_NAME)
+    public abstract String indexName();
+
+    @JsonProperty(INDEXER_NAME)
+    public abstract String indexerName();
+
+    @JsonProperty(API_VERSION)
+    public abstract String apiVersion();
+
+    @JsonProperty(DATASOURCE_NAME)
+    public abstract String datasourceName();
+
     @JsonCreator
-    public static AzureSearchConfig create(@JsonProperty(SERVICE_NAME) String serviceName, @JsonProperty(API_KEY) String apiKey) {
-        return new AutoValue_AzureSearchConfig(serviceName, apiKey);
+    public static AzureSearchConfig create(
+            @JsonProperty(SERVICE_NAME) String serviceName,
+            @JsonProperty(API_KEY) String apiKey,
+            @JsonProperty(INDEX_NAME) String indexName,
+            @JsonProperty(INDEXER_NAME) String indexerName,
+            @JsonProperty(API_VERSION) String apiVersion,
+            @JsonProperty(DATASOURCE_NAME) String datasourceName) {
+        return new AutoValue_AzureSearchConfig(serviceName, apiKey, indexName, indexerName, apiVersion, datasourceName);
     }
 }
 

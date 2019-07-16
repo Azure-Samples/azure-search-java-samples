@@ -1,13 +1,24 @@
 package com.microsoft.azure.search.samples.options;
 
 import com.google.auto.value.AutoValue;
+import com.microsoft.azure.search.samples.client.SearchServiceHelper;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @AutoValue
 public abstract class SearchOptions {
+    public static Builder builder() {
+        return new com.microsoft.azure.search.samples.options.AutoValue_SearchOptions.Builder()
+                .facets(new ArrayList<>())
+                .scoringParameters(new ArrayList<>())
+                .requireAllTerms(false);
+    }
+
     public abstract Optional<Boolean> includeCount();
 
     public abstract Optional<String> filter();
@@ -38,11 +49,57 @@ public abstract class SearchOptions {
 
     public abstract Optional<Double> minimumCoverage();
 
-    public static Builder builder() {
-        return new com.microsoft.azure.search.samples.options.AutoValue_SearchOptions.Builder()
-                .facets(new ArrayList<>())
-                .scoringParameters(new ArrayList<>())
-                .requireAllTerms(false);
+    private String optionalQueryParam(String queryKeyName, Optional accessor) {
+        if (accessor.isPresent()) {
+            var s = String.format("&%s=%s", queryKeyName, accessor.get().toString());
+            try {
+                return URLEncoder.encode(s, "UTF-8");
+            } catch (UnsupportedEncodingException x) {
+                SearchServiceHelper.logMessage(String.format("Exception encoding %s, value %s", queryKeyName, accessor.get().toString()));
+                return "";
+            }
+        } else {
+            return "";
+        }
+    }
+
+    public String toQueryParameters() {
+        var sb = new StringBuilder();
+
+        var optionalQueryParams = new String[]{
+                optionalQueryParam("$filter", filter()),
+                optionalQueryParam("$orderBy", orderBy()),
+                optionalQueryParam("$select", select()),
+                optionalQueryParam("searchFields", searchFields()),
+                optionalQueryParam("highlight", highlight()),
+                optionalQueryParam("highlightPreTag", highlightPreTag()),
+                optionalQueryParam("highlightPostTag", highlightPostTag()),
+                optionalQueryParam("scoringProfile", scoringProfile()),
+                optionalQueryParam("$top", top()),
+                optionalQueryParam("$skip", skip()),
+                optionalQueryParam("minimumCoverage", minimumCoverage())
+        };
+
+        Arrays.stream(optionalQueryParams).map(sb::append);
+        facets().stream()
+                .map(Optional::of) // Helper expects Optional
+                .map(o -> optionalQueryParam("facet", o)) // Create query param
+                .map(sb::append); //Append to StringBuilder
+        scoringParameters().stream()
+                .map(Optional::of) // Helper expects Optional
+                .map(o -> optionalQueryParam("scoringParameter", o)) // Create query param
+                .map(sb::append); //Append to StringBuilder
+
+        if (requireAllTerms()) {
+            sb.append("&searchMode=all");
+        }
+
+        if (includeCount().isPresent())
+        {
+            sb.append(optionalQueryParam("$count", includeCount()));
+        }
+
+        return sb.toString();
     }
 
     @AutoValue.Builder
