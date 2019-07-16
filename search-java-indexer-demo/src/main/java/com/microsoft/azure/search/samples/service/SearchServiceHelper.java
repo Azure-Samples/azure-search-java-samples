@@ -79,7 +79,7 @@ public class SearchServiceHelper {
 
         return false;
     }
-    
+
     public static HttpRequest httpRequest(URI uri, String apiKey, String method, String contents) {
         contents = contents == null ? "" : contents;
         var builder = HttpRequest.newBuilder();
