@@ -138,7 +138,7 @@ class DemoOperations {
                         true);
     }
 
-    void indexData() throws IOException, InterruptedException {
+    void indexData() throws IOException {
         // In this case we createIndex sample data in-memory. Typically this will come from another database, file or
         // API and will be turned into objects with the desired shape for indexing
         List<IndexOperation> ops = new ArrayList<>();
