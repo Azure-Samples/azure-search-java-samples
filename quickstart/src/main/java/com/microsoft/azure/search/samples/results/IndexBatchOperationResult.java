@@ -8,6 +8,15 @@ import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class IndexBatchOperationResult {
+    @JsonCreator
+    public static IndexBatchOperationResult create(@JsonProperty("key") String key,
+                                                   @JsonProperty("status") boolean status, @JsonProperty("errorMessage") String errorMessage,
+                                                   @JsonProperty("statusCode") int statusCode) {
+        return new com.microsoft.azure.search.samples.results.AutoValue_IndexBatchOperationResult(key, status,
+                errorMessage,
+                statusCode);
+    }
+
     public abstract String key();
 
     public abstract boolean status();
@@ -16,13 +25,4 @@ public abstract class IndexBatchOperationResult {
     public abstract String errorMessage();
 
     public abstract int statusCode();
-
-    @JsonCreator
-    public static IndexBatchOperationResult create(@JsonProperty("key") String key,
-            @JsonProperty("status") boolean status, @JsonProperty("errorMessage") String errorMessage,
-            @JsonProperty("statusCode") int statusCode) {
-        return new com.microsoft.azure.search.samples.results.AutoValue_IndexBatchOperationResult(key, status,
-                                                                                                  errorMessage,
-                                                                                                  statusCode);
-    }
 }

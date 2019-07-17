@@ -6,6 +6,10 @@ import java.util.Optional;
 
 @AutoValue
 public abstract class SearchOptions {
+    public static Builder builder() {
+        return new com.microsoft.azure.search.samples.options.AutoValue_SearchOptions.Builder();
+    }
+
     public abstract Optional<Boolean> includeCount();
 
     public abstract Optional<String> filter();
@@ -15,10 +19,6 @@ public abstract class SearchOptions {
     public abstract Optional<String> select();
 
     public abstract Optional<Integer> top();
-
-    public static Builder builder() {
-        return new com.microsoft.azure.search.samples.options.AutoValue_SearchOptions.Builder();
-    }
 
     @AutoValue.Builder
     public abstract static class Builder {
