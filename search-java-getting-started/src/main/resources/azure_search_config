@@ -1,8 +1,8 @@
 {
     "ServiceName" :  "[SEARCH_SERVICE_NAME]",
     "ApiKey" : "[SEARCH_SERVICE_API_KEY]",
-    "IndexName" : "",
-    "IndexerName" : "",
+    "IndexName" : "hotels",
+    "IndexerName" : "hotels-indexer",
     "ApiVersion" : "2019-05-06",
-    "DatasourceName" : "tk"
+    "DatasourceName" : "hotels-datasource"
 }
