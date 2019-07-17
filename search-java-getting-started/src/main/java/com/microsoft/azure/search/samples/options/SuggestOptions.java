@@ -15,7 +15,7 @@ public abstract class SuggestOptions {
 
     public abstract Optional<String> filter();
 
-    public abstract Optional<String> orderby();
+    public abstract Optional<String> orderBy();
 
     public abstract Optional<String> select();
 
@@ -33,8 +33,8 @@ public abstract class SuggestOptions {
 
     private String optionalQueryParam(String queryKeyName, Optional accessor) {
         if (accessor.isPresent()) {
-            var s = String.format("&%s=%s", queryKeyName, accessor.get().toString());
-            return URLEncoder.encode(s, StandardCharsets.UTF_8);
+            var encodedParam = URLEncoder.encode(accessor.get().toString(), StandardCharsets.UTF_8);
+            return String.format("&%s=%s", queryKeyName, encodedParam);
         } else {
             return "";
         }
@@ -45,7 +45,7 @@ public abstract class SuggestOptions {
 
         var optionalQueryParams = new String[]{
                 optionalQueryParam("$filter", filter()),
-                optionalQueryParam("$orderBy", orderby()),
+                optionalQueryParam("$orderBy", orderBy()),
                 optionalQueryParam("$select", select()),
                 optionalQueryParam("searchFields", searchFields()),
                 optionalQueryParam("highlightPreTag", highlightPreTag()),
@@ -66,7 +66,7 @@ public abstract class SuggestOptions {
     public abstract static class Builder {
         public abstract Builder filter(String filter);
 
-        public abstract Builder orderby(String orderBy);
+        public abstract Builder orderBy(String orderBy);
 
         public abstract Builder select(String select);
 
