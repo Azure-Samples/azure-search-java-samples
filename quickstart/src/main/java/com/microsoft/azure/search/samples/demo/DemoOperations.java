@@ -34,7 +34,7 @@ class DemoOperations {
 
     // Indexes may be created via the management UI in portal.azure.com or via APIs. In addition to field
     // details index definitions include options for custom scoring, suggesters and more
-    void createIndex() throws IOException {
+    void createIndex() throws IOException, InterruptedException {
         // Typical application initialization may createIndex an index if it doesn't exist. Deleting an index
         // on initialization is a sample-only thing to do
         System.out.printf("\nCreating the index");

@@ -20,11 +20,13 @@ import java.util.List;
 
 public class SearchIndexClient {
     private static final String API_VERSION = "2019-05-06";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new Jdk8Module());
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final String serviceName;
     private final String indexName;
     private final String apiKey;
+
+    private static final HttpClient client = HttpClient.newHttpClient();
 
     public SearchIndexClient(String serviceName, String indexName, String apiKey) {
         this.serviceName = serviceName;
@@ -33,70 +35,51 @@ public class SearchIndexClient {
     }
 
     private static HttpResponse<String> sendRequest(HttpRequest request) throws IOException, InterruptedException {
-        var client = HttpClient.newHttpClient();
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+       return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     public boolean doesIndexExist() throws IOException, InterruptedException {
-        var request = httpRequest(buildIndexDefinitionUrl(), "GET").build();
-        var responseCode = sendRequest(request).statusCode();
+        final var request = httpRequest(buildIndexDefinitionUrl(), "GET").build();
+        final var responseCode = sendRequest(request).statusCode();
         return responseCode != HttpURLConnection.HTTP_NOT_FOUND;
     }
 
-    /*
-        public boolean doesIndexExist() throws IOException {
-            HttpURLConnection connection = httpRequest(buildIndexDefinitionUrl(), "GET");
-            int response = connection.getResponseCode();
-            if (response == HttpURLConnection.HTTP_NOT_FOUND) {
-                return false;
-            }
-            throwOnHttpError(connection);
-            return true;
-        }
-    */
     public void createIndex(IndexDefinition indexDefinition) throws IOException, InterruptedException {
-        OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).writeValue(
-                connection.getOutputStream(), indexDefinition);
+        final var indexDefinitionJson = OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).writeValueAsString(indexDefinition);
 
-        var request = httpPost(buildIndexListUrl(), indexDefinitionJson).build();
-        var response = sendRequest(request);
-        //TODO: Check if the response code is ACCEPTED or what...
+        final var request = httpPost(buildIndexListUrl(), indexDefinitionJson).build();
+        final var response = sendRequest(request);
+        throwOnHttpError(response);
     }
 
-    public void deleteIndexIfExists() throws IOException {
+    public void deleteIndexIfExists() throws IOException, InterruptedException {
         if (doesIndexExist()) {
-            HttpURLConnection connection = httpRequest(buildIndexDefinitionUrl(), "DELETE");
-            throwOnHttpError(connection);
+            final var request = httpRequest(buildIndexDefinitionUrl(), "DELETE").build();
+            final var response = sendRequest(request);
+            throwOnHttpError(response);
         }
     }
 
     public IndexBatchResult indexBatch(final List<IndexOperation> operations) throws IOException {
+        var endpoint = buildIndexingUrl();
+        var requestBody = OBJECT_MAPPER.writeValueAsString(new IndexBatch(operations));
         return withHttpRetry(() -> {
-            HttpURLConnection connection = httpRequest(buildIndexingUrl(), "POST");
-            connection.setDoOutput(true);
-            OBJECT_MAPPER.writeValue(connection.getOutputStream(), new IndexBatch(operations));
-            throwOnHttpError(connection);
-            return OBJECT_MAPPER.readValue(connection.getInputStream(), IndexBatchResult.class);
+            var request = httpPost(endpoint, requestBody).build();
+            var response = sendRequest(request);
+            throwOnHttpError(response);
+            return OBJECT_MAPPER.readValue(response.body(), IndexBatchResult.class);
         });
     }
 
     public SearchResult search(final String search, final SearchOptions options) throws IOException {
+        var endpoint = buildSearchUrl(search, options);
         return withHttpRetry(() -> {
-            HttpURLConnection connection = httpRequest(buildSearchUrl(search, options), "GET");
-            throwOnHttpError(connection);
-            return OBJECT_MAPPER.readValue(connection.getInputStream(), SearchResult.class);
+            var request = httpRequest(endpoint, "GET").build();
+            var response = sendRequest(request);
+            throwOnHttpError(response);
+            return OBJECT_MAPPER.readValue(response.body(), SearchResult.class);
         });
     }
-
-    /*
-    private HttpURLConnection httpRequest(String url, String method) throws IOException {
-        var connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod(method);
-        connection.setRequestProperty("content-type", "application/json");
-        connection.setRequestProperty("api-key", this.apiKey);
-        return connection;
-    }
-     */
 
     private static HttpRequest.Builder azureJsonRequestBuilder(String url, String apiKey) {
         var builder = HttpRequest.newBuilder();
@@ -127,10 +110,10 @@ public class SearchIndexClient {
         return builder;
     }
 
-    private void throwOnHttpError(HttpURLConnection connection) throws IOException {
-        int code = connection.getResponseCode();
+    private void throwOnHttpError(HttpResponse<String> response) throws IOException {
+        int code = response.statusCode();
         if (code >= HttpURLConnection.HTTP_BAD_REQUEST) {
-            String message = String.format("HTTP error. Code: %s. Message: %s", code, connection.getResponseMessage());
+            String message = String.format("HTTP error. Code: %s. Message: %s", code, response.body());
             if (code == HttpURLConnection.HTTP_UNAVAILABLE) {
                 // this typically means the server is asking for back off + retry
                 throw new HttpRetryException(message, code);
@@ -182,22 +165,21 @@ public class SearchIndexClient {
         final int delayInMilliSec = 30000;
         int count = 0;
         T result;
-        while (true) {
-            try {
-                result = r.run();
-                break;
-            } catch (HttpRetryException e) {
-                if (++count == maxRetries) {
-                    throw e;
+        try {
+            while (true) {
+                try {
+                    result = r.run();
+                    break;
+                } catch (HttpRetryException e) {
+                    if (++count == maxRetries) {
+                        throw e;
+                    }
                 }
-            }
-            try {
                 Thread.sleep(delayInMilliSec * count);
-            } catch (InterruptedException e) {
-                throw new IOException("Interrupted during HTTP retry", e);
             }
+        }catch(InterruptedException e) {
+            throw new IOException("Interrupted during HTTP operation", e);
         }
-
         return result;
     }
 
@@ -210,6 +192,6 @@ public class SearchIndexClient {
     }
 
     private interface RetriableHttpOperation<T> {
-        T run() throws IOException;
+        T run() throws IOException, InterruptedException;
     }
 }
