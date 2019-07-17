@@ -51,9 +51,10 @@ public abstract class SearchOptions {
 
     private String optionalQueryParam(String queryKeyName, Optional accessor) {
         if (accessor.isPresent()) {
-            var s = String.format("&%s=%s", queryKeyName, accessor.get().toString());
             try {
-                return URLEncoder.encode(s, "UTF-8");
+                var encodedParam = URLEncoder.encode(accessor.get().toString(), "UTF-8");
+                var s = String.format("&%s=%s", queryKeyName, encodedParam);
+                return s;
             } catch (UnsupportedEncodingException x) {
                 SearchServiceHelper.logMessage(String.format("Exception encoding %s, value %s", queryKeyName, accessor.get().toString()));
                 return "";
@@ -80,15 +81,15 @@ public abstract class SearchOptions {
                 optionalQueryParam("minimumCoverage", minimumCoverage())
         };
 
-        Arrays.stream(optionalQueryParams).map(sb::append);
+        Arrays.stream(optionalQueryParams).forEach(sb::append);
         facets().stream()
                 .map(Optional::of) // Helper expects Optional
                 .map(o -> optionalQueryParam("facet", o)) // Create query param
-                .map(sb::append); //Append to StringBuilder
+                .forEach(sb::append); //Append to StringBuilder
         scoringParameters().stream()
                 .map(Optional::of) // Helper expects Optional
                 .map(o -> optionalQueryParam("scoringParameter", o)) // Create query param
-                .map(sb::append); //Append to StringBuilder
+                .forEach(sb::append); //Append to StringBuilder
 
         if (requireAllTerms()) {
             sb.append("&searchMode=all");

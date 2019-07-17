@@ -56,7 +56,7 @@ public abstract class SuggestOptions {
                 optionalQueryParam("minimumCoverage", minimumCoverage())
         };
 
-        Arrays.stream(optionalQueryParams).map(sb::append);
+        Arrays.stream(optionalQueryParams).forEach(sb::append);
         if (fuzzy())
         {
             sb.append("&fuzzy=true");

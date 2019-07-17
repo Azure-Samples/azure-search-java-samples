@@ -4,8 +4,4 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class SuggestOptionsTests {
 
-    @Test
-    void justAnExample() {
-        fail();
-    }
 }
