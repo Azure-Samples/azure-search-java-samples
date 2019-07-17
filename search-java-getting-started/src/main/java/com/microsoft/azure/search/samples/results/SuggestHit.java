@@ -7,14 +7,14 @@ import java.util.Map;
 
 @AutoValue
 public abstract class SuggestHit {
-    public abstract String text();
-
-    public abstract Map<String, Object> document();
-
     @JsonCreator
     public static SuggestHit create(Map<String, Object> jsonMap) {
         String text = (String) jsonMap.get("@search.text");
         jsonMap.remove("@search.text");
         return new com.microsoft.azure.search.samples.results.AutoValue_SuggestHit(text, jsonMap);
     }
+
+    public abstract String text();
+
+    public abstract Map<String, Object> document();
 }

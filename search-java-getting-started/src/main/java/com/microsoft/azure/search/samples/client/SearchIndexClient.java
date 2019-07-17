@@ -15,7 +15,10 @@ import com.microsoft.azure.search.samples.results.SearchResult;
 import com.microsoft.azure.search.samples.results.SuggestResult;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.ConnectException;
+import java.net.HttpRetryException;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -28,7 +31,7 @@ import static com.microsoft.azure.search.samples.client.SearchServiceHelper.*;
 public class SearchIndexClient {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new Jdk8Module());
     private static final HttpClient client = HttpClient.newHttpClient();
-    private AzureSearchConfig config;
+    private final AzureSearchConfig config;
 
     public SearchIndexClient(AzureSearchConfig config) {
         this.config = config;
@@ -38,16 +41,6 @@ public class SearchIndexClient {
         logMessage(String.format("\n %sing to %s", request.method(), request.uri()));
 
         return client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    private static String escapePathSegment(String segment) throws IOException {
-        // URLEncoder.encode() is the wrong thing to use in this case, work-around with URI below
-        try {
-            URI uri = new URI("https", "temporary-service-name.temporary-domain.temporary-tld", "/" + segment, "");
-            return uri.getPath().substring(1);
-        } catch (URISyntaxException e) {
-            throw new IOException("Invalid segment content");
-        }
     }
 
     private static <T> T withHttpRetry(RetriableHttpOperation<T> r) throws IOException {
@@ -102,7 +95,7 @@ public class SearchIndexClient {
         }
     }
 
-    public IndexBatchResult indexBatch(final List<IndexOperation> operations) throws IOException, InterruptedException {
+    public IndexBatchResult indexBatch(final List<IndexOperation> operations) throws IOException {
         final var endpoint = getIndexUrl(config);
         final var body = OBJECT_MAPPER.writeValueAsString(new IndexBatch(operations));
         return withHttpRetry(() -> {
@@ -165,7 +158,7 @@ public class SearchIndexClient {
     }
 
     private static class IndexBatch {
-        private List<IndexOperation> value;
+        private final List<IndexOperation> value;
 
         IndexBatch(List<IndexOperation> operations) {
             value = new ArrayList<>(operations);

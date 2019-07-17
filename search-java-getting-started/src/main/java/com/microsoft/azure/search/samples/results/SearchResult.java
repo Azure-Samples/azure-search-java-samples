@@ -11,8 +11,17 @@ import java.util.List;
 import java.util.Map;
 
 @AutoValue
-@JsonIgnoreProperties(value = { "@odata.context" })
+@JsonIgnoreProperties(value = {"@odata.context"})
 public abstract class SearchResult {
+    @JsonCreator
+    public static SearchResult create(@JsonProperty("value") List<SearchHit> hits,
+                                      @JsonProperty("@odata.count") long count, @JsonProperty("@odata.nextLink") String nextLink,
+                                      @JsonProperty("@search.coverage") Double coverage,
+                                      @JsonProperty("@search.facets") Map<String, FacetValue[]> facets) {
+        return new com.microsoft.azure.search.samples.results.AutoValue_SearchResult(hits, count, nextLink, coverage,
+                facets);
+    }
+
     public abstract List<SearchHit> hits();
 
     public abstract long count();
@@ -26,24 +35,8 @@ public abstract class SearchResult {
     @Nullable
     public abstract Map<String, FacetValue[]> facets();
 
-    @JsonCreator
-    public static SearchResult create(@JsonProperty("value") List<SearchHit> hits,
-            @JsonProperty("@odata.count") long count, @JsonProperty("@odata.nextLink") String nextLink,
-            @JsonProperty("@search.coverage") Double coverage,
-            @JsonProperty("@search.facets") Map<String, FacetValue[]> facets) {
-        return new com.microsoft.azure.search.samples.results.AutoValue_SearchResult(hits, count, nextLink, coverage,
-                                                                                     facets);
-    }
-
     @AutoValue
     public abstract static class SearchHit {
-        public abstract Map<String, Object> document();
-
-        @Nullable
-        public abstract Map<String, String[]> highlights();
-
-        public abstract double score();
-
         @JsonCreator
         public static SearchHit create(Map<String, Object> jsonMap) {
             double score = (Double) jsonMap.get("@search.score");
@@ -51,7 +44,7 @@ public abstract class SearchResult {
             Map<String, String[]> highlights = null;
             if (jsonMap.containsKey("@search.highlights")) {
                 highlights = (Map<String, String[]>) jsonMap.get("@search.highlights");
-                ArrayList<String> keys = new ArrayList<String>();
+                ArrayList<String> keys = new ArrayList<>();
                 for (String k : highlights.keySet()) {
                     if (k.endsWith("@odata.type")) {
                         keys.add(k);
@@ -64,13 +57,27 @@ public abstract class SearchResult {
             }
             Map<String, Object> document = jsonMap;
             return new com.microsoft.azure.search.samples.results.AutoValue_SearchResult_SearchHit(document, highlights,
-                                                                                                   score);
+                    score);
         }
+
+        public abstract Map<String, Object> document();
+
+        @Nullable
+        public abstract Map<String, String[]> highlights();
+
+        public abstract double score();
     }
 
     @AutoValue
     @JsonIgnoreProperties(ignoreUnknown = true)
     public abstract static class FacetValue {
+        @JsonCreator
+        public static FacetValue create(@JsonProperty("value") Object value, @JsonProperty("from") Object from,
+                                        @JsonProperty("to") Object to, @JsonProperty("count") Integer count) {
+            return new com.microsoft.azure.search.samples.results.AutoValue_SearchResult_FacetValue(value, from, to,
+                    count);
+        }
+
         @Nullable
         public abstract Object value();
 
@@ -81,12 +88,5 @@ public abstract class SearchResult {
         public abstract Object to();
 
         public abstract Integer count();
-
-        @JsonCreator
-        public static FacetValue create(@JsonProperty("value") Object value, @JsonProperty("from") Object from,
-                @JsonProperty("to") Object to, @JsonProperty("count") Integer count) {
-            return new com.microsoft.azure.search.samples.results.AutoValue_SearchResult_FacetValue(value, from, to,
-                                                                                                    count);
-        }
     }
 }

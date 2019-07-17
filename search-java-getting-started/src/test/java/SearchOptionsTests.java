@@ -48,8 +48,8 @@ class SearchOptionsTests {
 
     @Test
     void facetsWorks() {
-        var soEmpty = SearchOptions.builder().facets(new ArrayList<String>()).build();
-        var single = Arrays.asList("A");
+        var soEmpty = SearchOptions.builder().facets(new ArrayList<>()).build();
+        var single = Collections.singletonList("A");
         var soSingle = SearchOptions.builder().facets(single).build();
         var multi = Arrays.asList("A","B","C");
         var soMulti = SearchOptions.builder().facets(multi).build();
@@ -116,7 +116,7 @@ class SearchOptionsTests {
                 .filter("baseRate lt 150")
                 .facets(Arrays.asList("Facet1", "Facet2"))
                 .includeCount(true)
-                .scoringParameters(Arrays.asList("SP1,SP2"))
+                .scoringParameters(Collections.singletonList("SP1,SP2"))
                 .scoringProfile("geo")
                 .build();
         var longQueryParams = "&$filter=baseRate+lt+150&$orderBy=BaseRate&$select=Description%2CBaseRate&searchFields=A%2CB&highlight=beach&highlightPreTag=%3Cb%3E&highlightPostTag=%3C%2Fb%3E&scoringProfile=geo&$top=5&$skip=4&minimumCoverage=12.5&facet=Facet1&facet=Facet2&scoringParameter=SP1%2CSP2&searchMode=all&$count=true";

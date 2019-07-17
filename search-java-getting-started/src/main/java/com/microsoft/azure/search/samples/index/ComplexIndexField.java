@@ -8,16 +8,16 @@ import java.util.List;
 
 @AutoValue
 public abstract class ComplexIndexField implements IndexField {
+    @JsonCreator
+    public static ComplexIndexField create(@JsonProperty("name") String name,
+                                           @JsonProperty("fields") List<IndexField> fields, boolean isCollection) {
+        String type = isCollection ? "Collection(Edm.ComplexType)" : "Edm.ComplexType";
+        return new com.microsoft.azure.search.samples.index.AutoValue_ComplexIndexField(name, fields, type);
+    }
+
     public abstract String name();
 
     public abstract List<IndexField> fields();
 
     public abstract String type();
-
-    @JsonCreator
-    public static ComplexIndexField create(@JsonProperty("name") String name,
-            @JsonProperty("fields") List<IndexField> fields, boolean isCollection) {
-        String type = isCollection ? "Collection(Edm.ComplexType)" : "Edm.ComplexType";
-        return new com.microsoft.azure.search.samples.index.AutoValue_ComplexIndexField(name, fields, type);
-    }
 }

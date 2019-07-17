@@ -9,16 +9,16 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @AutoValue
-@JsonIgnoreProperties(value = { "@odata.context" })
+@JsonIgnoreProperties(value = {"@odata.context"})
 public abstract class IndexBatchResult {
+    @JsonCreator
+    public static IndexBatchResult create(@JsonProperty("value") List<IndexBatchOperationResult> value,
+                                          @JsonProperty("status") Integer status) {
+        return new com.microsoft.azure.search.samples.results.AutoValue_IndexBatchResult(value, status);
+    }
+
     public abstract List<IndexBatchOperationResult> value();
 
     @Nullable
     public abstract Integer status();
-
-    @JsonCreator
-    public static IndexBatchResult create(@JsonProperty("value") List<IndexBatchOperationResult> value,
-            @JsonProperty("status") Integer status) {
-        return new com.microsoft.azure.search.samples.results.AutoValue_IndexBatchResult(value, status);
-    }
 }

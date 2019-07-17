@@ -1,11 +1,6 @@
 package com.microsoft.azure.search.samples.demo;
 
 public class App {
-    //[Azure Search Service Name - excluding .search.windows.net];
-    private static final String SERVICE_NAME = "";
-    //[Enter your Azure Search Service API Key];
-    private static final String API_KEY = "";
-
     public static void main(String[] args) {
         try {
             var config = AzureSearchConfig.fromJson("/azure_search_config");

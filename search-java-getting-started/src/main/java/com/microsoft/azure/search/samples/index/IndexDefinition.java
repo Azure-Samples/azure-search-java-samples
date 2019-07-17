@@ -8,15 +8,15 @@ import java.util.List;
 
 @AutoValue
 public abstract class IndexDefinition {
+    @JsonCreator
+    public static IndexDefinition create(@JsonProperty("name") String name,
+                                         @JsonProperty("fields") List<IndexField> fields, @JsonProperty("suggesters") List<Suggester> suggesters) {
+        return new com.microsoft.azure.search.samples.index.AutoValue_IndexDefinition(name, fields, suggesters);
+    }
+
     public abstract String name();
 
     public abstract List<IndexField> fields();
 
     public abstract List<Suggester> suggesters();
-
-    @JsonCreator
-    public static IndexDefinition create(@JsonProperty("name") String name,
-            @JsonProperty("fields") List<IndexField> fields, @JsonProperty("suggesters") List<Suggester> suggesters) {
-        return new com.microsoft.azure.search.samples.index.AutoValue_IndexDefinition(name, fields, suggesters);
-    }
 }

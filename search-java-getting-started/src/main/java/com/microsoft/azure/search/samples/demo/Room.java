@@ -17,6 +17,17 @@ public abstract class Room {
     public static final String SMOKING_ALLOWED = "SmokingAllowed";
     public static final String TAGS = "Tags";
 
+    @JsonCreator
+    public static Room create(@JsonProperty(DESCRIPTION) String description,
+                              @JsonProperty(DESCRIPTION_FR) String descriptionFr, @JsonProperty(TYPE) String type,
+                              @JsonProperty(BASE_RATE) double baseRate, @JsonProperty(BED_OPTIONS) String bedOptions,
+                              @JsonProperty(SLEEPS_COUNT) int sleepsCount, @JsonProperty(SMOKING_ALLOWED) boolean smokingAllowed,
+                              @JsonProperty(TAGS) List<String> tags) {
+        return new com.microsoft.azure.search.samples.demo.AutoValue_Room(description, descriptionFr, type, baseRate,
+                bedOptions, sleepsCount, smokingAllowed,
+                tags);
+    }
+
     @JsonProperty(DESCRIPTION)
     public abstract String description();
 
@@ -40,15 +51,4 @@ public abstract class Room {
 
     @JsonProperty(TAGS)
     public abstract List<String> tags();
-
-    @JsonCreator
-    public static Room create(@JsonProperty(DESCRIPTION) String description,
-            @JsonProperty(DESCRIPTION_FR) String descriptionFr, @JsonProperty(TYPE) String type,
-            @JsonProperty(BASE_RATE) double baseRate, @JsonProperty(BED_OPTIONS) String bedOptions,
-            @JsonProperty(SLEEPS_COUNT) int sleepsCount, @JsonProperty(SMOKING_ALLOWED) boolean smokingAllowed,
-            @JsonProperty(TAGS) List<String> tags) {
-        return new com.microsoft.azure.search.samples.demo.AutoValue_Room(description, descriptionFr, type, baseRate,
-                                                                          bedOptions, sleepsCount, smokingAllowed,
-                                                                          tags);
-    }
 }

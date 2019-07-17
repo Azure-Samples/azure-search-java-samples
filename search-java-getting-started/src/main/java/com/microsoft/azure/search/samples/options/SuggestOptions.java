@@ -1,15 +1,18 @@
 package com.microsoft.azure.search.samples.options;
 
 import com.google.auto.value.AutoValue;
-import com.microsoft.azure.search.samples.client.SearchServiceHelper;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 
 @AutoValue
 public abstract class SuggestOptions {
+    public static Builder builder() {
+        return new com.microsoft.azure.search.samples.options.AutoValue_SuggestOptions.Builder().fuzzy(false);
+    }
+
     public abstract Optional<String> filter();
 
     public abstract Optional<String> orderby();
@@ -31,12 +34,7 @@ public abstract class SuggestOptions {
     private String optionalQueryParam(String queryKeyName, Optional accessor) {
         if (accessor.isPresent()) {
             var s = String.format("&%s=%s", queryKeyName, accessor.get().toString());
-            try {
-                return URLEncoder.encode(s, "UTF-8");
-            } catch (UnsupportedEncodingException x) {
-                SearchServiceHelper.logMessage(String.format("Exception encoding %s, value %s", queryKeyName, accessor.get().toString()));
-                return "";
-            }
+            return URLEncoder.encode(s, StandardCharsets.UTF_8);
         } else {
             return "";
         }
@@ -57,16 +55,11 @@ public abstract class SuggestOptions {
         };
 
         Arrays.stream(optionalQueryParams).forEach(sb::append);
-        if (fuzzy())
-        {
+        if (fuzzy()) {
             sb.append("&fuzzy=true");
         }
 
         return sb.toString();
-    }
-
-    public static Builder builder() {
-        return new com.microsoft.azure.search.samples.options.AutoValue_SuggestOptions.Builder().fuzzy(false);
     }
 
     @AutoValue.Builder

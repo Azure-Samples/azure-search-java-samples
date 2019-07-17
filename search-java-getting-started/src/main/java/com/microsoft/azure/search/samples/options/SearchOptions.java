@@ -1,10 +1,9 @@
 package com.microsoft.azure.search.samples.options;
 
 import com.google.auto.value.AutoValue;
-import com.microsoft.azure.search.samples.client.SearchServiceHelper;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,14 +50,8 @@ public abstract class SearchOptions {
 
     private String optionalQueryParam(String queryKeyName, Optional accessor) {
         if (accessor.isPresent()) {
-            try {
-                var encodedParam = URLEncoder.encode(accessor.get().toString(), "UTF-8");
-                var s = String.format("&%s=%s", queryKeyName, encodedParam);
-                return s;
-            } catch (UnsupportedEncodingException x) {
-                SearchServiceHelper.logMessage(String.format("Exception encoding %s, value %s", queryKeyName, accessor.get().toString()));
-                return "";
-            }
+            var encodedParam = URLEncoder.encode(accessor.get().toString(), StandardCharsets.UTF_8);
+            return String.format("&%s=%s", queryKeyName, encodedParam);
         } else {
             return "";
         }
@@ -95,8 +88,7 @@ public abstract class SearchOptions {
             sb.append("&searchMode=all");
         }
 
-        if (includeCount().isPresent())
-        {
+        if (includeCount().isPresent()) {
             sb.append(optionalQueryParam("$count", includeCount()));
         }
 

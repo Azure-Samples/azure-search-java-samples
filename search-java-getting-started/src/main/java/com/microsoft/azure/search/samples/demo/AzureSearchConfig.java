@@ -24,6 +24,17 @@ public abstract class AzureSearchConfig {
         return configMapper.readValue(jsonResource, AzureSearchConfig.class);
     }
 
+    @JsonCreator
+    public static AzureSearchConfig create(
+            @JsonProperty(SERVICE_NAME) String serviceName,
+            @JsonProperty(API_KEY) String apiKey,
+            @JsonProperty(INDEX_NAME) String indexName,
+            @JsonProperty(INDEXER_NAME) String indexerName,
+            @JsonProperty(API_VERSION) String apiVersion,
+            @JsonProperty(DATASOURCE_NAME) String datasourceName) {
+        return new AutoValue_AzureSearchConfig(serviceName, apiKey, indexName, indexerName, apiVersion, datasourceName);
+    }
+
     @JsonProperty(SERVICE_NAME)
     public abstract String serviceName();
 
@@ -41,16 +52,5 @@ public abstract class AzureSearchConfig {
 
     @JsonProperty(DATASOURCE_NAME)
     public abstract String datasourceName();
-
-    @JsonCreator
-    public static AzureSearchConfig create(
-            @JsonProperty(SERVICE_NAME) String serviceName,
-            @JsonProperty(API_KEY) String apiKey,
-            @JsonProperty(INDEX_NAME) String indexName,
-            @JsonProperty(INDEXER_NAME) String indexerName,
-            @JsonProperty(API_VERSION) String apiVersion,
-            @JsonProperty(DATASOURCE_NAME) String datasourceName) {
-        return new AutoValue_AzureSearchConfig(serviceName, apiKey, indexName, indexerName, apiVersion, datasourceName);
-    }
 }
 

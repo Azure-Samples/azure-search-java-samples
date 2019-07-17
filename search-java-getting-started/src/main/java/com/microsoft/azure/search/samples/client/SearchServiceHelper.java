@@ -36,25 +36,25 @@ public class SearchServiceHelper {
         return buildURI(strFormatter -> strFormatter.format(_searchURL, config.serviceName(), config.indexName(), config.apiVersion(), query));
     }
 
-    public static URI getIndexLookupUrl(AzureSearchConfig config, String key)
-    {
+    public static URI getIndexLookupUrl(AzureSearchConfig config, String key) {
         return buildURI(strFormatter -> strFormatter.format(_indexLookupUrl, config.serviceName(), config.indexName(), key, config.apiVersion()));
     }
 
     public static URI buildSearchUrl(AzureSearchConfig config, String searchTerm, SearchOptions options) {
         var encodedQueryParams = options.toQueryParameters();
-        StringBuilder url = new StringBuilder(
-                String.format("https://%s.search.windows.net/indexes/%s/docs?api-version=%s&search=%s",
-                        config.serviceName(), config.indexName(), config.apiVersion(), encodedQueryParams));
-        return URI.create(url.toString());
+        var completeQueryTerm = String.format("%s%s", searchTerm, encodedQueryParams);
+        String url = String.format("https://%s.search.windows.net/indexes/%s/docs?api-version=%s&search=%s",
+                config.serviceName(), config.indexName(), config.apiVersion(), completeQueryTerm);
+        return URI.create(url);
     }
 
     public static URI buildIndexSuggestUrl(AzureSearchConfig config, String searchTerm, String suggesterName, SuggestOptions options) {
         var encodedQueryParams = options.toQueryParameters();
-        StringBuilder url = new StringBuilder(String.format(
-                "https://%s.search.windows.net/indexes/%s/docs/suggest?api-version=%s&search=%s&suggesterName=%s",
-                config.serviceName(), config.indexName(), config.apiVersion(), encodedQueryParams, suggesterName));
-        return URI.create(url.toString());
+        var completeQueryTerm = String.format("%s%s", searchTerm, encodedQueryParams);
+        String url = String.format(
+                "https://%s.search.windows.net/indexes/%s/docs/suggest?api-version=%s&search=%s&suggesterName=%s%s",
+                config.serviceName(), config.indexName(), config.apiVersion(), completeQueryTerm, suggesterName, encodedQueryParams);
+        return URI.create(url);
     }
 
     public static URI getIndexUrl(AzureSearchConfig config) {
