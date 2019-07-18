@@ -1,9 +1,11 @@
 import com.microsoft.azure.search.samples.options.SearchOptions;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SearchOptionsTests {
 
@@ -19,7 +21,7 @@ class SearchOptionsTests {
         var cTrue = SearchOptions.builder().includeCount(true).build();
         var cFalse = SearchOptions.builder().includeCount(false).build();
         assertEquals("&$count=true", cTrue.toQueryParameters());
-        assertEquals ("&$count=false", cFalse.toQueryParameters());
+        assertEquals("&$count=false", cFalse.toQueryParameters());
     }
 
     @Test
@@ -51,10 +53,10 @@ class SearchOptionsTests {
         var soEmpty = SearchOptions.builder().facets(new ArrayList<>()).build();
         var single = Collections.singletonList("A");
         var soSingle = SearchOptions.builder().facets(single).build();
-        var multi = Arrays.asList("A","B","C");
+        var multi = Arrays.asList("A", "B", "C");
         var soMulti = SearchOptions.builder().facets(multi).build();
         assertEquals("", soEmpty.toQueryParameters());
-        assertEquals("&facet=A",soSingle.toQueryParameters());
+        assertEquals("&facet=A", soSingle.toQueryParameters());
         assertEquals("&facet=A&facet=B&facet=C", soMulti.toQueryParameters());
     }
 

@@ -5,9 +5,10 @@ import com.microsoft.azure.search.samples.options.SuggestOptions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SearchServiceHelperTests {
     AzureSearchConfig config = AzureSearchConfig.create("serviceName", "apiKey", "hotels", "hotel-indexer", "2019-05-06", "hotels-datasource");
@@ -53,23 +54,22 @@ class SearchServiceHelperTests {
     }
 
     @Test
-    void buildSuggest()
-    {
+    void buildSuggest() {
         var simpleSuggest = SearchServiceHelper.buildIndexSuggestUrl(config, "searchTerm", "suggesterName", SuggestOptions.builder().build());
         assertEquals(URI.create("https://servicename.search.windows.net/indexes/hotels/docs/suggest?api-version=2019-05-06&search=searchTerm&suggesterName=suggesterName"), simpleSuggest);
 
         var so = SuggestOptions.builder()
-            .minimumCoverage(12.5)
-            .top(5)
-            .highlightPostTag("</b>")
-            .highlightPreTag("<b>")
-            .top(10)
-            .minimumCoverage(3.4)
-            .fuzzy(true)
-            .searchFields("A,B")
-            .select("Description,BaseRate")
-            .filter("baseRate lt 150")
-            .build();
+                .minimumCoverage(12.5)
+                .top(5)
+                .highlightPostTag("</b>")
+                .highlightPreTag("<b>")
+                .top(10)
+                .minimumCoverage(3.4)
+                .fuzzy(true)
+                .searchFields("A,B")
+                .select("Description,BaseRate")
+                .filter("baseRate lt 150")
+                .build();
         var longQueryParams = "&$filter=baseRate+lt+150&$select=Description%2CBaseRate&searchFields=A%2CB&highlightPreTag=%3Cb%3E&highlightPostTag=%3C%2Fb%3E&$top=10&minimumCoverage=3.4&fuzzy=true";
         var longURI = "https://servicename.search.windows.net/indexes/hotels/docs/suggest?api-version=2019-05-06&search=searchTerm&suggesterName=suggesterName" + longQueryParams;
         assertEquals(URI.create(longURI), SearchServiceHelper.buildIndexSuggestUrl(config, "searchTerm", "suggesterName", so));
