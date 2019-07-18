@@ -11,6 +11,7 @@ import com.microsoft.azure.search.samples.results.*;
 import java.io.IOException;
 import java.util.*;
 
+import static com.microsoft.azure.search.samples.client.SearchServiceHelper.logMessage;
 import static com.microsoft.azure.search.samples.demo.Address.*;
 import static com.microsoft.azure.search.samples.demo.Hotel.*;
 import static com.microsoft.azure.search.samples.demo.Room.DESCRIPTION;
@@ -35,6 +36,7 @@ class DemoOperations {
         // on initialization is a sample-only thing to do
         client.deleteIndexIfExists();
 
+        logMessage("Confirming that index does not exist (Expect to receive \"Error: No index with the name 'hotels' was found in the index\")");
         if (!client.doesIndexExist()) {
             List<IndexField> fields =
                     Arrays.asList(SimpleIndexField.builder(HOTEL_ID, "Edm.String")

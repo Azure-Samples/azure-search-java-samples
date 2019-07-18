@@ -81,22 +81,26 @@ public class SearchIndexClient {
     public void createIndex(IndexDefinition indexDefinition) throws IOException, InterruptedException {
         final var endpoint = getIndexUrl(config);
         final var body = OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).writeValueAsString(indexDefinition);
-        final var request = httpRequest(endpoint, "POST", body);
+        final var request = httpRequest(endpoint, "PUT", body);
         final var response = sendRequest(request);
         throwOnHttpError(response);
     }
 
     public void deleteIndexIfExists() throws IOException, InterruptedException {
+        logMessage("Checking if index exists");
         if (doesIndexExist()) {
+            logMessage("Deleting existing index");
             final var endpoint = getIndexUrl(config);
             final var request = httpRequest(endpoint, "DELETE", null);
             final var response = sendRequest(request);
             throwOnHttpError(response);
+        } else {
+            logMessage("Index does not exist yet");
         }
     }
 
     public IndexBatchResult indexBatch(final List<IndexOperation> operations) throws IOException {
-        final var endpoint = getIndexUrl(config);
+        final var endpoint = getIndexingUrl(config);
         final var body = OBJECT_MAPPER.writeValueAsString(new IndexBatch(operations));
         return withHttpRetry(() -> {
             final var request = httpRequest(endpoint, "POST", body);

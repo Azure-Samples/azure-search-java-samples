@@ -86,6 +86,7 @@
                 </executions>
                 <configuration>
                     <mainClass>com.microsoft.azure.search.samples.demo.App</mainClass>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
                 </configuration>
             </plugin>
         </plugins>

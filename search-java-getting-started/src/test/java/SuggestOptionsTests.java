@@ -63,9 +63,11 @@ public class SuggestOptionsTests {
     void fuzzyWorks() {
         var soT = SuggestOptions.builder().fuzzy(true).build();
         var soF = SuggestOptions.builder().fuzzy(false).build();
+        var soE = SuggestOptions.builder().build();
 
         assertEquals("&fuzzy=true", soT.toQueryParameters());
         assertEquals("", soF.toQueryParameters());
+        assertEquals("", soE.toQueryParameters());
     }
 
     @Test
