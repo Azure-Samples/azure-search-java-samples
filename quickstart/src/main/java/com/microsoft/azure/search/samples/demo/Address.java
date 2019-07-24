@@ -11,6 +11,12 @@ public abstract class Address {
     public static final String STATE_PROVINCE = "StateProvince";
     public static final String POSTAL_CODE = "PostalCode";
 
+    @JsonCreator
+    public static Address create(@JsonProperty(STREET_ADDRESS) String streetAddress, @JsonProperty(CITY) String city,
+                                 @JsonProperty(STATE_PROVINCE) String stateProvince, @JsonProperty(POSTAL_CODE) String postalCode) {
+        return new com.microsoft.azure.search.samples.demo.AutoValue_Address(streetAddress, city, stateProvince, postalCode);
+    }
+
     @JsonProperty(STREET_ADDRESS)
     public abstract String streetAddress();
 
@@ -22,10 +28,4 @@ public abstract class Address {
 
     @JsonProperty(POSTAL_CODE)
     public abstract String postalCode();
-
-    @JsonCreator
-    public static Address create(@JsonProperty(STREET_ADDRESS) String streetAddress, @JsonProperty(CITY) String city,
-            @JsonProperty(STATE_PROVINCE) String stateProvince, @JsonProperty(POSTAL_CODE) String postalCode) {
-        return new com.microsoft.azure.search.samples.demo.AutoValue_Address(streetAddress, city, stateProvince, postalCode);
-    }
 }

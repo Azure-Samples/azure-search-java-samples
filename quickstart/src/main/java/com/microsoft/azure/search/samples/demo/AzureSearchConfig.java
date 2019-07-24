@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
 
 import java.net.URL;
-import java.util.List;
 
 @AutoValue
 public abstract class AzureSearchConfig {
@@ -14,10 +13,15 @@ public abstract class AzureSearchConfig {
     public static final String API_KEY = "ApiKey";
 
     static AzureSearchConfig fromJson(String configJsonResourceName) throws java.io.IOException {
-        ObjectMapper configMapper = new ObjectMapper();
+        final var configMapper = new ObjectMapper();
 
         URL jsonResource = configMapper.getClass().getResource(configJsonResourceName);
         return configMapper.readValue(jsonResource, AzureSearchConfig.class);
+    }
+
+    @JsonCreator
+    public static AzureSearchConfig create(@JsonProperty(SERVICE_NAME) String serviceName, @JsonProperty(API_KEY) String apiKey) {
+        return new AutoValue_AzureSearchConfig(serviceName, apiKey);
     }
 
     @JsonProperty(SERVICE_NAME)
@@ -25,9 +29,4 @@ public abstract class AzureSearchConfig {
 
     @JsonProperty(API_KEY)
     public abstract String apiKey();
-
-    @JsonCreator
-    public static AzureSearchConfig create(@JsonProperty(SERVICE_NAME) String serviceName, @JsonProperty(API_KEY) String apiKey) {
-        return new AutoValue_AzureSearchConfig(serviceName, apiKey);
-    }
 }

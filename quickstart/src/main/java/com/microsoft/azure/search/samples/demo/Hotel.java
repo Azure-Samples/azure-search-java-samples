@@ -19,6 +19,19 @@ public abstract class Hotel {
     public static final String RATING = "Rating";
     public static final String ADDRESS = "Address";
 
+    @JsonCreator
+    public static Hotel create(@JsonProperty(HOTEL_ID) String hotelId, @JsonProperty(HOTEL_NAME) String hotelName,
+                               @JsonProperty(DESCRIPTION) String description, @JsonProperty(DESCRIPTION_FR) String descriptionFr,
+                               @JsonProperty(CATEGORY) String category, @JsonProperty(TAGS) List<String> tags,
+                               @JsonProperty(PARKING_INCLUDED) boolean parkingIncluded,
+                               @JsonProperty(LAST_RENOVATION_DATE) String lastRenovationDate, @JsonProperty(RATING) double rating,
+                               @JsonProperty(ADDRESS) Address address) {
+        return new com.microsoft.azure.search.samples.demo.AutoValue_Hotel(hotelId, hotelName, description,
+                descriptionFr, category, tags,
+                parkingIncluded, lastRenovationDate,
+                rating, address);
+    }
+
     @JsonProperty(HOTEL_ID)
     public abstract String hotelId();
 
@@ -48,17 +61,4 @@ public abstract class Hotel {
 
     @JsonProperty(ADDRESS)
     public abstract Address address();
-
-    @JsonCreator
-    public static Hotel create(@JsonProperty(HOTEL_ID) String hotelId, @JsonProperty(HOTEL_NAME) String hotelName,
-            @JsonProperty(DESCRIPTION) String description, @JsonProperty(DESCRIPTION_FR) String descriptionFr,
-            @JsonProperty(CATEGORY) String category, @JsonProperty(TAGS) List<String> tags,
-            @JsonProperty(PARKING_INCLUDED) boolean parkingIncluded,
-            @JsonProperty(LAST_RENOVATION_DATE) String lastRenovationDate, @JsonProperty(RATING) double rating,
-            @JsonProperty(ADDRESS) Address address) {
-        return new com.microsoft.azure.search.samples.demo.AutoValue_Hotel(hotelId, hotelName, description,
-                                                                           descriptionFr, category, tags,
-                                                                           parkingIncluded, lastRenovationDate,
-                                                                           rating, address);
-    }
 }

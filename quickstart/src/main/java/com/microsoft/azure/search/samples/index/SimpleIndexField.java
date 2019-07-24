@@ -6,6 +6,10 @@ import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class SimpleIndexField implements IndexField {
+    public static Builder builder(String name, String type) {
+        return new com.microsoft.azure.search.samples.index.AutoValue_SimpleIndexField.Builder().name(name).type(type);
+    }
+
     public abstract String name();
 
     public abstract String type();
@@ -24,10 +28,6 @@ public abstract class SimpleIndexField implements IndexField {
 
     @Nullable
     public abstract Boolean key();
-
-    public static Builder builder(String name, String type) {
-        return new com.microsoft.azure.search.samples.index.AutoValue_SimpleIndexField.Builder().name(name).type(type);
-    }
 
     @AutoValue.Builder
     public abstract static class Builder {
