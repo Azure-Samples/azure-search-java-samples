@@ -1,15 +1,15 @@
 ---
-topic: sample
-services: azure-search
-platforms: java
+page_type: sample
 languages:
   - java
 name: Azure Search Sample Data
 description: |
   Find Java samples for Azure Search in this repo.
 products:
+  - azure
   - azure-search
 ---
+
 # Azure Search Java Samples repository
 
 This repository contains Java sample code used in Azure Search quickstarts, tutorials, and examples.
