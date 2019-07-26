@@ -12,7 +12,7 @@ products:
 
 # Azure Search Java Samples repository
 
-This repository contains Java sample code used in Azure Search quickstarts, tutorials, and examples.
+This repository contains Java sample code used in Azure Search quickstarts, tutorials and examples.
 
 ## Quickstart
 
