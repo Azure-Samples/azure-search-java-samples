@@ -10,12 +10,18 @@ products:
   - azure-search
 ---
 
-# Getting Started with Azure Search using Java
+# Common Design for Azure Search Modules
+
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This is a sample of how to interact with Azure Search using Java.  Not only does it execute most of the common API requests against Azure Search, but it also implements some of the best practices such as handling retries, etc.  
+This sample is a good starting point for your own application's search design. This sample uses the recommended design for common Java applications implementing Azure Search. It demonstrates most of the common APIs in Azure Search. Additionally, it shows: 
+
+- Storing access keys in a properties file (use Azure Key Vault for highly secure applications).
+- Modeling the search index with domain classes.
+- Building and configuring search requests using the Builder pattern.
+- Encapsulating the HTTP requests and retry logic.
 
 # Contents
 
