@@ -1,16 +1,17 @@
 ---
-services: search
-platforms: java
-author: liamca
-topic: sample
+page_type: sample
 languages:
   - java
+  - rest
+name: Get started with Azure Search in Java
+description: |
+  Demonstrates fundamental Azure Search operations in a Java console app. This example builds on the Quickstart by adding a more complex schema, retry logic, and error handling.
 products:
   - azure
   - azure-search
 ---
 
-# Getting Started with Azure Search using Java
+# Get started with Azure Search using Java
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
@@ -33,9 +34,9 @@ This is a sample of how to interact with Azure Search using Java.  Not only does
 
 - Install a Java 11 SDK. An option that does not incur support costs is [Zulu](https://docs.microsoft.com/java/azure/jdk/?view=azure-java-stable).
 - Choose a strategy for building and running the project using Maven 3:
-    - If you wish to build and run from the command-line, install [Maven 3](https://maven.apache.org/download.cgi).
-    - If you wish to use VSCode, install [VSCode](https://code.visualstudio.com/) and the [Maven for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven) extension.
-    - If you wish to use IDEA, install [IntelliJ IDEA](https://www.jetbrains.com/idea/) with default Java options.
+    - To build and run from the command-line, install [Maven 3](https://maven.apache.org/download.cgi).
+    - To use VSCode, install [VSCode](https://code.visualstudio.com/) and the [Maven for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven) extension.
+    - To use IDEA, install [IntelliJ IDEA](https://www.jetbrains.com/idea/) with default Java options.
 
 ## Setup
 

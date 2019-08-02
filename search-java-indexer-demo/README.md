@@ -1,7 +1,11 @@
 ---
-topic: sample
+page_type: sample
 languages:
   - java
+  - rest
+name: Index Cosmos DB data in Azure Search
+description: |
+  Automate indexing of Cosmos DB data using an Azure Search indexer. This example runs as a Java console application.
 products:
   - azure
   - azure-search
@@ -10,7 +14,6 @@ products:
 # Tutorial: Create an Azure Search indexer, run it, and query the database from Java
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
@@ -28,9 +31,9 @@ This sample shows you how to write a Java client that creates an Azure Search in
 
 - Install a Java 11 SDK. An option that does not incur support costs is [Zulu](https://docs.microsoft.com/java/azure/jdk/?view=azure-java-stable).
 - Choose a strategy for building and running the project using Maven 3:
-    - If you wish to build and run from the command-line, install [Maven 3](https://maven.apache.org/download.cgi).
-    - If you wish to use VSCode, install [VSCode](https://code.visualstudio.com/) and the [Maven for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven) extension.
-    - If you wish to use IDEA, install [IntelliJ IDEA](https://www.jetbrains.com/idea/) with default Java options.
+    - To build and run from the command-line, install [Maven 3](https://maven.apache.org/download.cgi).
+    - To use VSCode, install [VSCode](https://code.visualstudio.com/) and the [Maven for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven) extension.
+    - To use IDEA, install [IntelliJ IDEA](https://www.jetbrains.com/idea/) with default Java options.
 
 ## Setup
 
