@@ -11,7 +11,7 @@ products:
   - azure-search
 urlFragment: java-sample-quickstart
 ---
-# Quickstart: Create an Azure Search index, load documents, and run queries from Java
+# Quickstart sample for Azure Search using Java
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
