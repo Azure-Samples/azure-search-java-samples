@@ -1,8 +1,4 @@
 ---
-topic: sample
-languages:
-  - java
-  - rest
 name: Azure Search Java samples
 description: |
   Find Java samples for Azure Search in this repo.
