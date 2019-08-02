@@ -9,6 +9,7 @@ description: |
 products:
   - azure
   - azure-search
+urlFragment: java-sample-quickstart
 ---
 # Quickstart: Create an Azure Search index, load documents, and run queries from Java
 

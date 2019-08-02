@@ -9,6 +9,7 @@ description: |
 products:
   - azure
   - azure-search
+urlFragment: search-java-getting-started
 ---
 
 # Get started with Azure Search using Java

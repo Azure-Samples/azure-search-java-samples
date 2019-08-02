@@ -9,6 +9,7 @@ description: |
 products:
   - azure
   - azure-search
+urlFragment: search-java-indexer-demo
 ---
 
 # Tutorial: Create an Azure Search indexer, run it, and query the database from Java
