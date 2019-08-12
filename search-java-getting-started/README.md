@@ -4,7 +4,7 @@ languages:
   - java
   - rest
 name: Get started with Azure Search in Java
-description: "Demonstrates fundamental Azure Search operations in a Java console app."
+description: "Demonstrates fundamental Azure Search operations in a Java console app. This is more advanced than the quickstart. It handles retries and supports the Rooms complex collection in the Hotels demo data set."
 products:
   - azure
   - azure-search
@@ -12,10 +12,6 @@ urlFragment: search-java-getting-started
 ---
 
 # Get started with Azure Search using Java
-
-![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
