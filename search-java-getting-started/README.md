@@ -4,7 +4,7 @@ languages:
   - java
   - rest
 name: Get started with Azure Search in Java
-description: "Demonstrates fundamental Azure Search operations in a Java console app. This is more advanced than the quickstart. It handles retries and supports the Rooms complex collection in the Hotels demo data set."
+description: "Demonstrates fundamental Azure Search operations in a Java console app. This sample is more advanced than the quickstart. It includes error handling and supports the Rooms complex collection in the Hotels demo data set."
 products:
   - azure
   - azure-search
