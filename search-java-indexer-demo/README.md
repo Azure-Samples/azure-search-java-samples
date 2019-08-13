@@ -5,7 +5,7 @@ languages:
   - rest
 name: Index Cosmos DB data in Azure Search
 description: |
-  Automate indexing of Cosmos DB data using an Azure Search indexer. This example runs as a Java console application.
+  Automate indexing of Cosmos DB data using an Azure Search indexer and REST APIs. This example runs as a Java console application.
 products:
   - azure
   - azure-search
@@ -16,11 +16,7 @@ urlFragment: search-java-indexer-demo
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
-
-This sample shows you how to write a Java client that creates an Azure Search indexer, apples that indexer to documents, and runs queries. The sample uses the Azure Search REST APIs.
+This sample shows you how to write a Java client that creates an Azure Search indexer, applies that indexer to documents, and runs queries. The sample uses the Azure Search REST APIs.
 
 ## Contents
 

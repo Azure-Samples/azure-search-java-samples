@@ -4,8 +4,7 @@ languages:
   - java
   - rest
 name: Quickstart in Java
-description: |
-  Learn basic steps for creating, loading, and querying an Azure Search index in a Java console application.
+description: "Learn basic steps for creating, loading, and querying an Azure Search index in a Java console application."
 products:
   - azure
   - azure-search
@@ -15,7 +14,7 @@ urlFragment: java-sample-quickstart
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample shows you how to write a Java client that accesses Azure Search, creates an index, loads documents, and runs queries.  
+This sample shows you how to write a Java client that accesses Azure Search, creates an index, loads documents, and runs queries. This code sample uses the Azure Search REST APIs. 
 
 ## Contents
 
