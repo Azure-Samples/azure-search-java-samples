@@ -44,7 +44,7 @@ This sample shows you how to write a Java client that accesses Azure Search, cre
     * In IDEA: 
         1. Use the "Import project" dialog to open `pom.xml`
         1. Select the Java 11 JDK to use with the project
-1. Configure access to the search service by editing the `ServiceName` and `ApiKey` values in the file [azure_search_config](src/main/resources/com/microsoft/azure/search/samples/app/config.properties). Note that the `ServiceName` should only be the specific name of the service. For instance, if the URL to your service was `https://myservice.search.windows.net`, the `ServiceName` would be `myservice`.
+1. Configure access to the search service by editing the `ServiceName` and `ApiKey` values in the file [config.properties](src/main/resources/com/microsoft/azure/search/samples/app/config.properties). Note that the `ServiceName` should only be the specific name of the service. For instance, if the URL to your service was `https://myservice.search.windows.net`, the `ServiceName` would be `myservice`.
 
 ## Running the sample
 
