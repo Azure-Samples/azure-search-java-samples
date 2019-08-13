@@ -67,7 +67,7 @@ Finally, the Maven process should exit with a success message.
 
 ## Key concepts
 
-Communication with the Azure Search service is handled by the [SearchIndexClient](src/main/java/com/microsoft/azure/search/samples/client/SearchIndexClient.java) class.
+Communication with the Azure Search service is handled by the [SearchIndexClient](src/main/java/com/microsoft/azure/search/samples/service/SearchIndexClient.java) class.
 
 The index definition is specified in [index.json](src/main/resources/com/microsoft/azure/search/samples/service/index.json) and uploaded document data is defined in [hotels.json](src/main/resources/com/microsoft/azure/search/samples/service/hotels.json)
 
