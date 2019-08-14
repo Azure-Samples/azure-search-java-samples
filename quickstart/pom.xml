@@ -1,60 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.microsoft.azure.search.samples.console</groupId>
-    <artifactId>azuresearch-console</artifactId>
+    <groupId>AzureSearchSample</groupId>
+    <artifactId>AzureSearchSample</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
     <properties>
-        <jackson.version>2.9.9</jackson.version>
-        <auto-value.version>1.6.2</auto-value.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <name>azuresearch-console</name>
-    <url>http://maven.apache.org</url>
-    <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.auto.value</groupId>
-            <artifactId>auto-value-annotations</artifactId>
-            <version>${auto-value.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.auto.value</groupId>
-            <artifactId>auto-value</artifactId>
-            <version>${auto-value.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-    </dependencies>
-
     <build>
+        <sourceDirectory>src</sourceDirectory>
         <plugins>
-            <!--put generated source files to generated-sources-->
-            <!-- Set language level to 11 -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.1</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>
                 </configuration>
             </plugin>
-            <!-- Add exec plugin to run demo program -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -67,11 +31,17 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>com.microsoft.azure.search.samples.demo.App</mainClass>
+                    <mainClass>com.microsoft.azure.search.samples.app.App</mainClass>
                     <cleanupDaemonThreads>false</cleanupDaemonThreads>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+    </dependencies>
 </project>
