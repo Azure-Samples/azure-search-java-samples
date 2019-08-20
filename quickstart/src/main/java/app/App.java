@@ -31,7 +31,7 @@ public class App {
             Thread.sleep(1000L); // wait a second to create the index
 
 //Uncomment the next 2 lines in the 2 - Load Documents section of the quickstart
-            client.uploadDocuments();
+            client.uploadDocuments("hotels.json");
             Thread.sleep(2000L); // wait 2 seconds for data to upload
 
 //Uncomment the following 5 search queries in the 3 - Search an index section of the quickstart

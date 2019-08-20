@@ -138,14 +138,14 @@ public class SearchServiceClient {
         return isSuccessResponse(response);
     }
 
-    public boolean uploadDocuments() throws IOException, InterruptedException {
+    public boolean uploadDocuments(String documentsFile) throws IOException, InterruptedException {
         logMessage("\n Uploading documents...");
         //Build the search service URL
         var endpoint = buildURI(strFormatter -> strFormatter.format(
                 "https://%s.search.windows.net/indexes/%s/docs/index?api-version=%s",
                 _serviceName,_indexName,_apiVersion));
         //Read in the data to index
-        var inputStream = SearchServiceClient.class.getResourceAsStream("hotels.json");
+        var inputStream = SearchServiceClient.class.getResourceAsStream(documentsFile);
         var documents = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         //Send HTTP POST request to upload and index the data
         var request = httpRequest(endpoint, _adminKey, "POST", documents);
