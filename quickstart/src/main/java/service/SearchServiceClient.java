@@ -1,4 +1,4 @@
-package com.microsoft.azure.search.samples.service;
+package service;
 
 import javax.json.Json;
 import javax.net.ssl.HttpsURLConnection;
@@ -16,138 +16,24 @@ import java.util.function.Consumer;
 /**
  * This class is responsible for implementing HTTP operations for creating the index, uploading documents and searching the data*/
 public class SearchServiceClient {
-    private final String _apiKey;
+    private final String _adminKey;
+    private final String _queryKey;
     private final String _apiVersion;
     private final String _serviceName;
     private final String _indexName;
     private final static HttpClient client = HttpClient.newHttpClient();
 
-
-    public SearchServiceClient(String serviceName, String apiKey, String apiVersion, String indexName) {
+    public SearchServiceClient(String serviceName, String adminKey, String queryKey, String apiVersion, String indexName) {
         this._serviceName = serviceName;
-        this._apiKey = apiKey;
+        this._adminKey = adminKey;
+        this._queryKey = queryKey;
         this._apiVersion = apiVersion;
         this._indexName = indexName;
-    }
-
-    private HttpRequest httpRequest(URI uri, String method, String contents)
-    {
-        return httpRequest(uri, _apiKey, method, contents);
     }
 
     private static HttpResponse<String> sendRequest(HttpRequest request) throws IOException, InterruptedException {
         logMessage(String.format("%s: %s", request.method(), request.uri()));
         return client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    public boolean indexExists() throws IOException, InterruptedException {
-        logMessage("\n Checking if index exists...");
-        var uri = buildURI(strFormatter -> strFormatter.format(
-                "https://%s.search.windows.net/indexes/%s/docs?api-version=%s&search=*",
-                _serviceName,_indexName,_apiVersion));
-        var request = httpRequest(uri, "HEAD", "");
-        var response = sendRequest(request);
-        return isSuccessResponse(response);
-    }
-
-    public boolean deleteIndex() throws IOException, InterruptedException {
-        logMessage("\n Deleting index...");
-        var uri = buildURI(strFormatter -> strFormatter.format(
-                "https://%s.search.windows.net/indexes/%s?api-version=%s",
-                _serviceName,_indexName,_apiVersion));
-        var request = httpRequest(uri, "DELETE", "*");
-        var response = sendRequest(request);
-        return isSuccessResponse(response);
-    }
-
-
-    public boolean createIndex(String indexDefinitionFile) throws IOException, InterruptedException {
-        logMessage("\n Creating index...");
-        //Build the search service URL
-        var uri = buildURI(strFormatter -> strFormatter.format(
-                "https://%s.search.windows.net/indexes/%s?api-version=%s",
-                _serviceName,_indexName,_apiVersion));
-        //Read in index definition file
-        var inputStream = SearchServiceClient.class.getResourceAsStream("index.json");
-        var indexDef = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        //Send HTTP PUT request to create the index in the search service
-        var request = httpRequest(uri, "PUT", indexDef);
-        var response = sendRequest(request);
-        return isSuccessResponse(response);
-    }
-
-    public boolean uploadDocuments(String documentsFile) throws IOException, InterruptedException {
-        logMessage("\n Uploading documents...");
-        //Build the search service URL
-        var endpoint = buildURI(strFormatter -> strFormatter.format(
-                "https://%s.search.windows.net/indexes/%s/docs/index?api-version=%s",
-                _serviceName,_indexName,_apiVersion));
-        //Read in the data to index
-        var inputStream = SearchServiceClient.class.getResourceAsStream(documentsFile);
-        var documents = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        //Send HTTP POST request to upload and index the data
-        var request = httpRequest(endpoint, "POST", documents);
-        var response = sendRequest(request);
-        return isSuccessResponse(response);
-    }
-
-    //Defines available search parameters that can be set
-    public class SearchOptions {
-
-        public String select = "";
-        public String filter = "";
-        public int top = 0;
-        public String orderby= "";
-    }
-
-    //Concatenates search parameters to append to the search request
-    private String createOptionsString(SearchOptions options)
-    {
-        String optionsString = "";
-        if (options != null) {
-            if (options.select != "")
-                optionsString = optionsString + "&$select=" + options.select;
-            if (options.filter != "")
-                optionsString = optionsString + "&$filter=" + options.filter;
-            if (options.top != 0)
-                optionsString = optionsString + "&$top=" + options.top;
-            if (options.orderby != "")
-                optionsString = optionsString + "&$orderby=" +options.orderby;
-        }
-        return optionsString;
-    }
-
-    public void searchPlus(String queryString)
-    {
-        searchPlus( queryString, null);
-    }
-
-    public void searchPlus(String queryString, SearchOptions options) {
-
-        try {
-             String optionsString = createOptionsString(options);
-            var uri = buildURI(strFormatter -> strFormatter.format(
-                    "https://%s.search.windows.net/indexes/%s/docs?api-version=%s&search=%s%s",
-                    _serviceName, _indexName, _apiVersion, queryString, optionsString));
-            var request = httpRequest(uri, "GET", null);
-            var response = sendRequest(request);
-           // logMessage("Full response:\n");
-           // logMessage(response.body());
-            var jsonReader = Json.createReader(new StringReader(response.body()));
-            var jsonArray = jsonReader.readObject().getJsonArray("value");
-             var resultsCount = jsonArray.size();
-            logMessage("Results:\nCount: " + resultsCount);
-            for (int i = 0; i <= resultsCount - 1; i++) {
-                logMessage(jsonArray.get(i).toString());
-            }
-
-            jsonReader.close();
-
-          }
-         catch (Exception e) {
-                e.printStackTrace();
-            }
-
     }
 
     private static URI buildURI(Consumer<Formatter> fmtFn)
@@ -187,12 +73,12 @@ public class SearchServiceClient {
         return false;
     }
 
-    private static HttpRequest httpRequest(URI uri, String apiKey, String method, String contents) {
+    public static HttpRequest httpRequest(URI uri, String key, String method, String contents) {
         contents = contents == null ? "" : contents;
         var builder = HttpRequest.newBuilder();
         builder.uri(uri);
         builder.setHeader("content-type", "application/json");
-        builder.setHeader("api-key", apiKey);
+        builder.setHeader("api-key", key);
 
         switch (method) {
             case "GET":
@@ -214,5 +100,115 @@ public class SearchServiceClient {
                 throw new IllegalArgumentException(String.format("Can't create request for method '%s'", method));
         }
         return builder.build();
+    }
+
+    public boolean indexExists() throws IOException, InterruptedException {
+        logMessage("\n Checking if index exists...");
+        var uri = buildURI(strFormatter -> strFormatter.format(
+                "https://%s.search.windows.net/indexes/%s/docs?api-version=%s&search=*",
+                _serviceName,_indexName,_apiVersion));
+        var request = httpRequest(uri, _adminKey, "HEAD", "");
+        var response = sendRequest(request);
+        return isSuccessResponse(response);
+    }
+
+    public boolean deleteIndex() throws IOException, InterruptedException {
+        logMessage("\n Deleting index...");
+        var uri = buildURI(strFormatter -> strFormatter.format(
+                "https://%s.search.windows.net/indexes/%s?api-version=%s",
+                _serviceName,_indexName,_apiVersion));
+        var request = httpRequest(uri, _adminKey, "DELETE", "*");
+        var response = sendRequest(request);
+        return isSuccessResponse(response);
+    }
+
+
+    public boolean createIndex(String indexDefinitionFile) throws IOException, InterruptedException {
+        logMessage("\n Creating index...");
+        //Build the search service URL
+        var uri = buildURI(strFormatter -> strFormatter.format(
+                "https://%s.search.windows.net/indexes/%s?api-version=%s",
+                _serviceName,_indexName,_apiVersion));
+        //Read in index definition file
+        var inputStream = SearchServiceClient.class.getResourceAsStream("index.json");
+        var indexDef = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        //Send HTTP PUT request to create the index in the search service
+        var request = httpRequest(uri, _adminKey, "PUT", indexDef);
+        var response = sendRequest(request);
+        return isSuccessResponse(response);
+    }
+
+    public boolean uploadDocuments() throws IOException, InterruptedException {
+        logMessage("\n Uploading documents...");
+        //Build the search service URL
+        var endpoint = buildURI(strFormatter -> strFormatter.format(
+                "https://%s.search.windows.net/indexes/%s/docs/index?api-version=%s",
+                _serviceName,_indexName,_apiVersion));
+        //Read in the data to index
+        var inputStream = SearchServiceClient.class.getResourceAsStream("hotels.json");
+        var documents = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        //Send HTTP POST request to upload and index the data
+        var request = httpRequest(endpoint, _adminKey, "POST", documents);
+        var response = sendRequest(request);
+        return isSuccessResponse(response);
+    }
+
+    public SearchOptions createSearchOptions() { return new SearchOptions();}
+
+    //Defines available search parameters that can be set
+    public static class SearchOptions {
+
+        public String select = "";
+        public String filter = "";
+        public int top = 0;
+        public String orderby= "";
+    }
+
+    //Concatenates search parameters to append to the search request
+    private String createOptionsString(SearchOptions options)
+    {
+        String optionsString = "";
+        if (options != null) {
+            if (options.select != "")
+                optionsString = optionsString + "&$select=" + options.select;
+            if (options.filter != "")
+                optionsString = optionsString + "&$filter=" + options.filter;
+            if (options.top != 0)
+                optionsString = optionsString + "&$top=" + options.top;
+            if (options.orderby != "")
+                optionsString = optionsString + "&$orderby=" +options.orderby;
+        }
+        return optionsString;
+    }
+
+    public void searchPlus(String queryString)
+    {
+        searchPlus( queryString, null);
+    }
+
+    public void searchPlus(String queryString, SearchOptions options) {
+
+        try {
+            String optionsString = createOptionsString(options);
+            var uri = buildURI(strFormatter -> strFormatter.format(
+                    "https://%s.search.windows.net/indexes/%s/docs?api-version=%s&search=%s%s",
+                    _serviceName, _indexName, _apiVersion, queryString, optionsString));
+            var request = httpRequest(uri, _queryKey, "GET", null);
+            var response = sendRequest(request);
+            var jsonReader = Json.createReader(new StringReader(response.body()));
+            var jsonArray = jsonReader.readObject().getJsonArray("value");
+            var resultsCount = jsonArray.size();
+            logMessage("Results:\nCount: " + resultsCount);
+            for (int i = 0; i <= resultsCount - 1; i++) {
+                logMessage(jsonArray.get(i).toString());
+            }
+
+            jsonReader.close();
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
