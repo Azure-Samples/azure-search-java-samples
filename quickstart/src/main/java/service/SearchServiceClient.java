@@ -1,4 +1,4 @@
-package service;
+package main.java.service;
 
 import javax.json.Json;
 import javax.net.ssl.HttpsURLConnection;
@@ -13,8 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Formatter;
 import java.util.function.Consumer;
 
-/**
- * This class is responsible for implementing HTTP operations for creating the index, uploading documents and searching the data*/
+/* This class is responsible for implementing HTTP operations for creating the index, uploading documents and searching the data*/
 public class SearchServiceClient {
     private final String _adminKey;
     private final String _queryKey;
@@ -130,13 +129,14 @@ public class SearchServiceClient {
                 "https://%s.search.windows.net/indexes/%s?api-version=%s",
                 _serviceName,_indexName,_apiVersion));
         //Read in index definition file
-        var inputStream = SearchServiceClient.class.getResourceAsStream("index.json");
+        var inputStream = SearchServiceClient.class.getResourceAsStream(indexDefinitionFile);
         var indexDef = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         //Send HTTP PUT request to create the index in the search service
         var request = httpRequest(uri, _adminKey, "PUT", indexDef);
         var response = sendRequest(request);
         return isSuccessResponse(response);
     }
+
 
     public boolean uploadDocuments(String documentsFile) throws IOException, InterruptedException {
         logMessage("\n Uploading documents...");
@@ -152,6 +152,7 @@ public class SearchServiceClient {
         var response = sendRequest(request);
         return isSuccessResponse(response);
     }
+
 
     public SearchOptions createSearchOptions() { return new SearchOptions();}
 
@@ -211,4 +212,6 @@ public class SearchServiceClient {
         }
 
     }
+
+
 }

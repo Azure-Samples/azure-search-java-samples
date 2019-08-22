@@ -1,6 +1,6 @@
-package app;
+package main.java.app;
 
-import service.SearchServiceClient;
+import main.java.service.SearchServiceClient;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -15,7 +15,7 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            var config = loadPropertiesFromResource("config.properties");
+            var config = loadPropertiesFromResource("/app/config.properties");
             var client = new SearchServiceClient(
                     config.getProperty("SearchServiceName"),
                     config.getProperty("SearchServiceAdminKey"),
@@ -26,18 +26,18 @@ public class App {
 
 
 //Uncomment the next 3 lines in the 1 - Create Index section of the quickstart
-            if (client.indexExists()) { client.deleteIndex();}
-            client.createIndex("index.json");
+            if(client.indexExists()){ client.deleteIndex();}
+            client.createIndex("/service/index.json");
             Thread.sleep(1000L); // wait a second to create the index
 
 //Uncomment the next 2 lines in the 2 - Load Documents section of the quickstart
-            client.uploadDocuments("hotels.json");
+            client.uploadDocuments("/service/hotels.json");
             Thread.sleep(2000L); // wait 2 seconds for data to upload
 
 //Uncomment the following 5 search queries in the 3 - Search an index section of the quickstart
             // Query 1
             client.logMessage("\n*QUERY 1****************************************************************");
-            client.logMessage("Search for: Atlanta");
+            client.logMessage("Search for: Atlanta'");
             client.logMessage("Return: All fields'");
             client.searchPlus("Atlanta");
 
