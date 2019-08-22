@@ -30,7 +30,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>app.App</mainClass>
+                    <mainClass>main.java.app.App</mainClass>
                     <cleanupDaemonThreads>false</cleanupDaemonThreads>
                 </configuration>
             </plugin>
@@ -43,5 +43,4 @@
             <version>1.0.2</version>
         </dependency>
     </dependencies>
-
 </project>
