@@ -1,13 +1,13 @@
 ---
 page_type: sample
 languages:
-  - java
-  - rest
-name: Get started with Azure Search in Java
-description: "Demonstrates fundamental Azure Search operations in a Java console app. This sample is more advanced than the quickstart. It includes error handling and supports the Rooms complex collection in the Hotels demo data set."
+- java
+- rest
+name: "Get started with Azure Search in Java"
+description: "Demonstrates fundamental Azure Search operations in a Java console app. Includes error handling and supports the Rooms complex collection in the Hotels demo data set."
 products:
-  - azure
-  - azure-search
+- azure
+- azure-search
 urlFragment: search-java-getting-started
 ---
 
@@ -17,7 +17,7 @@ urlFragment: search-java-getting-started
 
 This is a sample of how to interact with Azure Search using Java.  Not only does it execute most of the common API requests against Azure Search, but it also implements some of the best practices such as handling retries, etc.  
 
-# Contents
+## Contents
 
 | File/folder | Description |
 |-------------|-------------|
