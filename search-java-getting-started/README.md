@@ -3,8 +3,8 @@ page_type: sample
 languages:
 - java
 - rest
-name: "Get started with Azure Search in Java"
-description: "Demonstrates fundamental Azure Search operations in a Java console app. Includes error handling and supports the Rooms complex collection in the Hotels demo data set."
+name: "Get started with Azure Cognitive Search in Java"
+description: "Demonstrates fundamental Azure Cognitive Search operations in a Java console app. Includes error handling and supports the Rooms complex collection in the Hotels demo data set."
 products:
 - azure
 - cognitive-search
@@ -71,9 +71,9 @@ Finally, the Maven process should exit with a success message.
 
 ## Key concepts
 
-The app specifies a number of domain classes whose structure mirrors the index of the Hotels dataset. This index shows the use of complex types in Azure Search, such as the `Address` and `Room` types. 
+The app specifies a number of domain classes whose structure mirrors the index of the Hotels dataset. This index shows the use of complex types in Azure Cognitive Search, such as the `Address` and `Room` types. 
 
-The `SearchServiceHelper` class defines methods that help querying Azure Search. The `SearchIndexClient` uses these methods to accomplish the various tasks.
+The `SearchServiceHelper` class defines methods that help querying a search index. The `SearchIndexClient` uses these methods to accomplish the various tasks.
 
 The files `SearchOptions` and `SuggestOptions` use the Builder pattern to compose the various query parameters. These classes and their associated testing classes may be of use in your own code. 
 
