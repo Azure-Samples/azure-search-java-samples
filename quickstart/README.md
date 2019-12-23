@@ -4,17 +4,17 @@ languages:
   - java
   - rest
 name: Quickstart in Java
-description: "Learn basic steps for creating, loading, and querying an Azure Search index in a Java console application."
+description: "Learn basic steps for creating, loading, and querying an Azure Cognitive Search index in a Java console application."
 products:
   - azure
-  - azure-search
+  - cognitive-search
 urlFragment: java-sample-quickstart
 ---
-# Quickstart sample for Azure Search using Java
+# Quickstart sample for Azure Cognitive Search using Java
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample shows you how to write a Java client that accesses Azure Search, creates an index, loads documents, and runs queries. This code sample uses the Azure Search REST APIs.
+This sample shows you how to write a Java client that accesses Azure Cognitive Search, creates an index, loads documents, and runs queries. This code sample uses the Search Service REST APIs.
 
 ## Contents
 
@@ -37,7 +37,7 @@ This sample shows you how to write a Java client that accesses Azure Search, cre
 ## Setup
 
 1. Clone or download this sample repository.
-1. Follow the steps in the article [Create an Azure Search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal) to create and configure an Azure Search service that uses the "hotels" sample data.
+1. Follow the steps in the article [Create a search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal) to create and configure a search service that uses the "hotels" sample data.
 1. Open project in IDE:
     * In VSCode: 
         1. Open folder containing `pom.xml` 
@@ -67,7 +67,7 @@ Finally, the Maven process should exit with a success message.
 
 ## Key concepts
 
-Communication with the Azure Search service is handled by the [SearchIndexClient](src/main/java/com/microsoft/azure/search/samples/service/SearchIndexClient.java) class.
+Communication with the search service is handled by the [SearchIndexClient](src/main/java/com/microsoft/azure/search/samples/service/SearchIndexClient.java) class.
 
 The index definition is specified in [index.json](src/main/resources/com/microsoft/azure/search/samples/service/index.json) and uploaded document data is defined in [hotels.json](src/main/resources/com/microsoft/azure/search/samples/service/hotels.json)
 
@@ -75,4 +75,4 @@ The [App class](src/main/java/com/microsoft/azure/search/samples/app/App.java) c
 
 ## Next steps
 
-You can learn more about Azure Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).

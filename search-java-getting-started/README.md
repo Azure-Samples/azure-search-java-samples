@@ -7,15 +7,15 @@ name: "Get started with Azure Search in Java"
 description: "Demonstrates fundamental Azure Search operations in a Java console app. Includes error handling and supports the Rooms complex collection in the Hotels demo data set."
 products:
 - azure
-- azure-search
+- cognitive-search
 urlFragment: search-java-getting-started
 ---
 
-# Get started with Azure Search using Java
+# Get started with Azure Cognitive Search using Java
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This is a sample of how to interact with Azure Search using Java.  Not only does it execute most of the common API requests against Azure Search, but it also implements some of the best practices such as handling retries, etc.  
+This is a sample of how to interact with Azure Cognitive Search using Java. Not only does it execute most of the common API requests against the search service, but it also implements some of the best practices such as handling retries, etc.  
 
 ## Contents
 
@@ -40,7 +40,7 @@ This is a sample of how to interact with Azure Search using Java.  Not only does
 ## Setup
 
 1. Clone or download this sample repository
-1. Follow the steps in the article [Create an Azure Search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal) to create and configure an Azure Search service that uses the "hotels" sample data.
+1. Follow the steps in the article [Create a search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal) to create and configure a search service that uses the "hotels" sample data.
 1. Open project in IDE:
     * In VSCode: 
         1. Open folder containing `pom.xml` 
@@ -80,4 +80,4 @@ The files `SearchOptions` and `SuggestOptions` use the Builder pattern to compos
     
 ## Next steps
 
-You can learn more about Azure Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).

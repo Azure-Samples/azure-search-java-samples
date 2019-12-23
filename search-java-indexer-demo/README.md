@@ -3,20 +3,20 @@ page_type: sample
 languages:
   - java
   - rest
-name: Index Cosmos DB data in Azure Search
+name: Index Cosmos DB data in Azure Cognitive Search
 description: |
-  Automate indexing of Cosmos DB data using an Azure Search indexer and REST APIs. This example runs as a Java console application.
+  Automate indexing of Cosmos DB data using an Azure Cognitive Search indexer and REST APIs. This example runs as a Java console application.
 products:
   - azure
-  - azure-search
+  - cognitive-search
 urlFragment: search-java-indexer-demo
 ---
 
-# Index data from Cosmos DB using Java and Azure Search indexers
+# Index data from Cosmos DB using Java and Azure Cognitive Search indexers
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample shows you how to write a Java client that creates an Azure Search indexer, applies that indexer to documents, and runs queries. The sample uses the Azure Search REST APIs.
+This sample shows you how to write a Java client that creates an Azure Cognitive Search indexer, applies that indexer to documents, and runs queries. The sample uses the Search Service REST APIs.
 
 ## Contents
 
@@ -37,7 +37,7 @@ This sample shows you how to write a Java client that creates an Azure Search in
 ## Setup
 
 1. Clone or download this sample repository
-1. Follow the steps in the article [Create an Azure Search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal) to create and configure an Azure Search service that uses the "hotels" sample data.
+1. Follow the steps in the article [Create a search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal) to create and configure a search service that uses the "hotels" sample data.
 1. Open project in IDE:
     * In VSCode: 
         1. Open folder containing `pom.xml` 
@@ -60,10 +60,10 @@ The console should show the Maven build process, the output of the program as it
 
 ## Key concepts
 
-The app specifies a number of domain classes whose structure mirrors the index defined in `index.json`. This index shows the use of complex types in Azure Search, such as the `Address` and `Room` types. 
+The app specifies a number of domain classes whose structure mirrors the index defined in `index.json`. This index shows the use of complex types in Azure Cognitive Search, such as the `Address` and `Room` types. 
 
-The `SearchServiceHelper` class defines methods that help querying Azure Search. The `SearchServiceClient` uses these methods to accomplish the various tasks -- creating the index and indexer, indexing the documents and blocking until the indexing is complete, and querying the resulting index. 
+The `SearchServiceHelper` class defines methods that help querying a search index. The `SearchServiceClient` uses these methods to accomplish the various tasks -- creating the index and indexer, indexing the documents and blocking until the indexing is complete, and querying the resulting index. 
     
 ## Next steps
 
-You can learn more about Azure Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).
