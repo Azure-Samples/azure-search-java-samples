@@ -1,7 +1,7 @@
 ---
 name: Azure Cognitive Search Java samples
 description: |
-  Find Java samples for Azure Search in this repo.
+  Find Java samples for Azure Cognitive Search in this repo.
 products:
   - azure
   - cognitive-search
