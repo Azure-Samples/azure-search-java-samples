@@ -8,7 +8,7 @@ description: |
   Automate indexing of Cosmos DB data using an Azure Cognitive Search indexer and REST APIs. This example runs as a Java console application.
 products:
   - azure
-  - cognitive-search
+  - azure-cognitive-search
 urlFragment: search-java-indexer-demo
 ---
 

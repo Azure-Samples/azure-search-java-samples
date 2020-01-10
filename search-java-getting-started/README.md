@@ -7,7 +7,7 @@ name: "Get started with Azure Cognitive Search in Java"
 description: "Demonstrates fundamental Azure Cognitive Search operations in a Java console app. Includes error handling and supports the Rooms complex collection in the Hotels demo data set."
 products:
 - azure
-- cognitive-search
+- azure-cognitive-search
 urlFragment: search-java-getting-started
 ---
 

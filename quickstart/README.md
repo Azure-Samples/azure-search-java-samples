@@ -7,7 +7,7 @@ name: Quickstart in Java
 description: "Learn basic steps for creating, loading, and querying an Azure Cognitive Search index in a Java console application."
 products:
   - azure
-  - cognitive-search
+  - azure-cognitive-search
 urlFragment: java-sample-quickstart
 ---
 # Quickstart sample for Azure Cognitive Search using Java
