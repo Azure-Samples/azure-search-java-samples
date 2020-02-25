@@ -20,13 +20,12 @@ This sample shows you how to write a Java client that accesses Azure Cognitive S
 
 | File/folder | Description |
 |-------------|-------------|
-| `src`       | Sample source code. |
+| `src`       | Sample source code, including JSON for the index definition and hotel data. |
 | `.gitignore` | Define what to ignore at commit time. |
 | `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
 | `pom.xml` | Maven 3 project file. |
 | `LICENSE`   | The license for the sample. |
 
-The `src` folder contains the index definition and hotel data used in this sample.
 
 ## Prerequisites
 
