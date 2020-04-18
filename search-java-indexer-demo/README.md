@@ -2,7 +2,6 @@
 page_type: sample
 languages:
   - java
-  - rest
 name: Index Cosmos DB data in Azure Cognitive Search
 description: |
   Automate indexing of Cosmos DB data using an Azure Cognitive Search indexer and REST APIs. This example runs as a Java console application.
