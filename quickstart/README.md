@@ -2,7 +2,6 @@
 page_type: sample
 languages:
   - java
-  - rest
 name: Quickstart in Java
 description: "Learn basic steps for creating, loading, and querying an Azure Cognitive Search index in a Java console application."
 products:
