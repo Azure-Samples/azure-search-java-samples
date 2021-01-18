@@ -1,8 +1,7 @@
 package com.microsoft.azure.search.samples.demo;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,28 +10,18 @@ import java.util.Map;
  * also "merge" and "mergeOrUpload" that can capture different scenarios.
  */
 public class IndexOperation {
-    private final Map<String, Object> payload;
+    private static  ObjectMapper MAPPER  = new ObjectMapper();
 
-    private IndexOperation(Map<String, Object> map) {
-        this.payload = map;
-    }
-
-    static IndexOperation uploadOperation(Object object) {
+    static String uploadOperation(Object object) throws JsonProcessingException {
         Map<String, Object> map = new ObjectMapper().convertValue(object, Map.class);
         map.put("@search.action", "upload");
-        return new IndexOperation(map);
+        return MAPPER.writeValueAsString(map);
     }
 
-    static IndexOperation deleteOperation(String keyName, String keyValue) {
+    static String deleteOperation(String keyName, String keyValue) throws JsonProcessingException {
         Map<String, Object> map = new HashMap<>();
         map.put(keyName, keyValue);
         map.put("@search.action", "delete");
-
-        return new IndexOperation(map);
-    }
-
-    @JsonValue
-    private Map<String, Object> toJson() {
-        return this.payload;
+        return MAPPER.writeValueAsString(map);
     }
 }

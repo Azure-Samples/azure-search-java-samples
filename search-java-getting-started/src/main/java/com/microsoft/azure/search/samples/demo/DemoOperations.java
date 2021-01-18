@@ -1,17 +1,16 @@
 package com.microsoft.azure.search.samples.demo;
 
+import com.azure.search.*;
+import com.azure.search.models.*;
+import com.azure.search.util.SearchPagedFlux;
+import com.azure.search.util.SearchPagedResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.microsoft.azure.search.samples.client.SearchIndexClient;
-import com.microsoft.azure.search.samples.index.*;
-import com.microsoft.azure.search.samples.options.SearchOptions;
-import com.microsoft.azure.search.samples.options.SuggestOptions;
-import com.microsoft.azure.search.samples.results.*;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.*;
 
-import static com.microsoft.azure.search.samples.client.SearchServiceHelper.logMessage;
 import static com.microsoft.azure.search.samples.demo.Address.*;
 import static com.microsoft.azure.search.samples.demo.Hotel.*;
 import static com.microsoft.azure.search.samples.demo.Room.DESCRIPTION;
@@ -23,10 +22,14 @@ import static com.microsoft.azure.search.samples.demo.Room.*;
 class DemoOperations {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new Jdk8Module());
     private static final String INDEX_NAME = "hotels";
-    private final SearchIndexClient client;
+    private final SearchServiceAsyncClient serviceClient;
 
     DemoOperations(AzureSearchConfig config) {
-        this.client = new SearchIndexClient(config);
+        serviceClient = new SearchServiceClientBuilder()
+                .endpoint(String.format(config.endPoint(), config.serviceName()))
+                .credential(new SearchApiKeyCredential(config.apiKey()))
+                .serviceVersion(SearchServiceVersion.getLatest())
+                .buildAsyncClient();
     }
 
     // Indexes may be created via the management UI in portal.azure.com or via APIs. In addition to field
@@ -34,182 +37,132 @@ class DemoOperations {
     void createIndex() throws IOException, InterruptedException {
         // Typical application initialization may createIndex an index if it doesn't exist. Deleting an index
         // on initialization is a sample-only thing to do
-        client.deleteIndexIfExists();
-
-        logMessage("Confirming that index does not exist (Expect to receive \"Error: No index with the name 'hotels' was found in the index\")");
-        if (!client.doesIndexExist()) {
-            List<IndexField> fields =
-                    Arrays.asList(SimpleIndexField.builder(HOTEL_ID, "Edm.String")
-                                    .key(true).filterable(true).build(),
-                            SimpleIndexField.builder(HOTEL_NAME, "Edm.String")
-                                    .searchable(true).build(),
-                            SimpleIndexField.builder(DESCRIPTION, "Edm.String")
-                                    .searchable(true).build(),
-                            SimpleIndexField.builder(DESCRIPTION_FR, "Edm.String")
-                                    .searchable(true).analyzer("fr.lucene").build(),
-                            SimpleIndexField.builder(CATEGORY, "Edm.String")
-                                    .searchable(true).filterable(true).sortable(true).facetable(true).build(),
-                            SimpleIndexField.builder(TAGS, "Collection(Edm.String)")
-                                    .searchable(true).filterable(true).facetable(true).build(),
-                            SimpleIndexField.builder(PARKING_INCLUDED, "Edm.Boolean")
-                                    .filterable(true).facetable(true).build(),
-                            SimpleIndexField.builder(SMOKING_ALLOWED, "Edm.Boolean")
-                                    .filterable(true).facetable(true).build(),
-                            SimpleIndexField.builder(LAST_RENOVATION_DATE, "Edm.DateTimeOffset")
-                                    .filterable(true).sortable(true).facetable(true).build(),
-                            SimpleIndexField.builder(RATING, "Edm.Double")
-                                    .filterable(true).sortable(true).facetable(true).build(),
-                            defineAddressField(),
-                            defineRoomsField());
-
-            Suggester suggester = Suggester.create("sg", "analyzingInfixMatching",
-                    Collections.singletonList(HOTEL_NAME));
-
-            client.createIndex(IndexDefinition.create(INDEX_NAME, fields, Collections.singletonList(suggester)));
-        }
+        System.out.println("Confirming that index does not exist (Expect to receive \"Error: No index with the name 'hotels' was found in the index\")");
+        Index index = new Index();
+        index.setName(INDEX_NAME);
+        index.setFields(Arrays.asList(
+                new Field().setName(HOTEL_ID).setKey(true).setFilterable(true).setType(DataType.fromString("Edm.String")),
+                new Field().setName(HOTEL_NAME).setSearchable(true).setType(DataType.fromString("Edm.String")),
+                new Field().setName(DESCRIPTION).setSearchable(true).setType(DataType.fromString("Edm.String")),
+                new Field().setName(DESCRIPTION_FR).setSearchable(true).setType(DataType.fromString("Edm.String")),
+                new Field().setName(CATEGORY).setSearchable(true).setType(DataType.fromString("Edm.String")),
+                new Field().setName(TAGS).setSearchable(true).setFilterable(true).setFacetable(true).setType(DataType.fromString("Collection(Edm.String)")),
+                new Field().setName(PARKING_INCLUDED).setFilterable(true).setFacetable(true).setType(DataType.fromString("Edm.Boolean")),
+                new Field().setName(SMOKING_ALLOWED).setFilterable(true).setFacetable(true).setType(DataType.fromString("Edm.Boolean")),
+                new Field().setName(LAST_RENOVATION_DATE).setFilterable(true).setSortable(true).setFacetable(true).setType(DataType.fromString("Edm.DateTimeOffset")),
+                new Field().setName(RATING).setFilterable(true).setFacetable(true).setType(DataType.fromString("Edm.Double")),
+                defineAddressField(),
+                defineRoomsField()
+        ));
+        index.setSuggesters(Arrays.asList(new Suggester().setName("sg").setSearchMode("analyzingInfixMatching").setSourceFields(Arrays.asList(HOTEL_NAME))));
+        serviceClient.createOrUpdateIndex(index);
     }
 
-    private ComplexIndexField defineAddressField() {
-        return ComplexIndexField
-                .create("Address",
-                        Arrays.asList(
-                                SimpleIndexField
-                                        .builder(STREET_ADDRESS, "Edm.String")
-                                        .searchable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(CITY, "Edm.String")
-                                        .searchable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(STATE, "Edm.String")
-                                        .searchable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(ZIP_CODE, "Edm.String")
-                                        .searchable(true)
-                                        .build()
-                        ),
-                        false);
+    private Field defineAddressField() {
+        return new Field().setName("Address").setType(DataType.fromString("Edm.ComplexType")).setFields(
+                Arrays.asList(
+                        new Field().setName(STREET_ADDRESS).setSearchable(true).setType(DataType.fromString("Edm.String")),
+                        new Field().setName(CITY).setSearchable(true).setType(DataType.fromString("Edm.String")),
+                        new Field().setName(STATE).setSearchable(true).setType(DataType.fromString("Edm.String")),
+                        new Field().setName(ZIP_CODE).setSearchable(true).setType(DataType.fromString("Edm.String"))
+                )
+        );
     }
 
-    private ComplexIndexField defineRoomsField() {
-        return ComplexIndexField
-                .create("Rooms",
-                        Arrays.asList(
-                                SimpleIndexField
-                                        .builder(DESCRIPTION, "Edm.String")
-                                        .searchable(true)
-                                        .analyzer("en.lucene")
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(DESCRIPTION_FR, "Edm.String")
-                                        .searchable(true)
-                                        .analyzer("fr.lucene")
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(TYPE, "Edm.String")
-                                        .searchable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(BASE_RATE, "Edm.Double")
-                                        .filterable(true)
-                                        .facetable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(BED_OPTIONS, "Edm.String")
-                                        .searchable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(SLEEPS_COUNT, "Edm.Int32")
-                                        .filterable(true)
-                                        .facetable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(SMOKING_ALLOWED, "Edm.Boolean")
-                                        .filterable(true)
-                                        .facetable(true)
-                                        .build(),
-                                SimpleIndexField
-                                        .builder(TAGS, "Collection(Edm.String)")
-                                        .searchable(true)
-                                        .filterable(true)
-                                        .facetable(true)
-                                        .build()
-                        ),
-                        true);
+    private Field defineRoomsField() {
+        return new Field().setName("Rooms").setType(DataType.fromString("Collection(Edm.ComplexType)")).setFields(
+                Arrays.asList(
+                        new Field().setName(DESCRIPTION).setType(DataType.fromString("Edm.String")).setSearchable(true).setAnalyzer("en.lucene"),
+                        new Field().setName(DESCRIPTION_FR).setType(DataType.fromString("Edm.String")).setSearchable(true).setAnalyzer("fr.lucene"),
+                        new Field().setName(TYPE).setType(DataType.fromString("Edm.String")).setSearchable(true),
+                        new Field().setName(BASE_RATE).setType(DataType.fromString("Edm.Double")).setFilterable(true).setFacetable(true),
+                        new Field().setName(BED_OPTIONS).setType(DataType.fromString("Edm.String")).setSearchable(true),
+                        new Field().setName(SLEEPS_COUNT).setType(DataType.fromString("Edm.Int32")).setFilterable(true).setFacetable(true),
+                        new Field().setName(SMOKING_ALLOWED).setType(DataType.fromString("Edm.Boolean")).setFacetable(true).setFacetable(true),
+                        new Field().setName(TAGS).setType(DataType.fromString("Collection(Edm.String)")).setSearchable(true).setFilterable(true).setFacetable(true)
+                )
+        );
     }
 
     void indexData() throws IOException {
         // In this case we createIndex sample data in-memory. Typically this will come from another database, file or
         // API and will be turned into objects with the desired shape for indexing
-        List<IndexOperation> ops = new ArrayList<>();
+        List<String> ops = new ArrayList<>();
         for (String id : new String[]{"hotel1", "hotel10", "hotel11", "hotel12", "hotel13"}) {
             Hotel hotel = OBJECT_MAPPER.readValue(getClass().getResource("/" + id), Hotel.class);
             ops.add(IndexOperation.uploadOperation(hotel));
         }
         ops.add(IndexOperation.deleteOperation(HOTEL_ID, "1"));
 
-        IndexBatchResult result = client.indexBatch(ops);
-        if (result.status() != null && result.status() == 207) {
-            System.out.print("handle partial success, check individual client status/error message");
-        }
-        for (IndexBatchOperationResult r : result.value()) {
-            System.out.printf("Operation for id: %s, success: %s\n", r.key(), r.status());
-        }
+        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
+        indexClient.mergeOrUploadDocumentsWithResponse(ops).subscribe(response -> {
+            if (response.getStatusCode() == 207) {
+                System.out.print("handle partial success, check individual client status/error message");
+            }
+            response.getValue().getResults().forEach(indexingResult -> {
+                System.out.printf("Operation for id: %s, success: %s\n", indexingResult.getKey(), indexingResult.getStatusCode());
+            });
+        });
     }
 
     void searchSimple() throws IOException {
-        SearchOptions options = SearchOptions.builder().includeCount(true).build();
-        SearchResult result = client.search("Lobby", options);
-        System.out.printf("Found %s hits\n", result.count());
-        for (SearchResult.SearchHit hit : result.hits()) {
-            System.out.printf("\tid: %s, name: %s, score: %s\n", hit.document().get(HOTEL_ID),
-                    hit.document().get(HOTEL_NAME), hit.score());
-        }
+
+        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
+        SearchOptions options =
+                new SearchOptions().setIncludeTotalResultCount(true);
+        SearchPagedFlux searchPagedFlux =
+                indexClient.search("Lobby", options, new RequestOptions());
+        System.out.printf("Found %s hits\n", searchPagedFlux.count().block());
+        searchPagedFlux.subscribe(searchResult -> {
+            System.out.printf("\tid: %s, name: %s, score: %s\n", searchResult.getDocument().get(HOTEL_ID),
+                    searchResult.getDocument().get(HOTEL_NAME), searchResult.getScore());
+        });
     }
 
     void searchAllFeatures() throws IOException {
-        SearchOptions options = SearchOptions.builder()
-                .includeCount(true)
-                .filter("Rooms/all(r: r/BaseRate lt 260)")
-                .orderBy(LAST_RENOVATION_DATE + " desc")
-                .select(HOTEL_ID + "," + DESCRIPTION + "," + LAST_RENOVATION_DATE)
-                .searchFields(ROOMS + "/" + DESCRIPTION)
-                .facets(Arrays.asList(TAGS, RATING))
-                .highlight(HOTEL_NAME)
-                .highlightPreTag("*pre*")
-                .highlightPostTag("*post*")
-                .top(10)
-                .requireAllTerms(true)
-                .minimumCoverage(0.75).build();
 
-        SearchResult result = client.search("Mountain", options);
-
-        // list search hits
-        System.out.printf("Found %s hits, coverage: %s\n", result.count(),
-                result.coverage() == null ? "-" : result.coverage());
-        for (SearchResult.SearchHit hit : result.hits()) {
-            System.out.printf("\tid: %s, name: %s, LastRenovationDate: %s\n", hit.document().get(HOTEL_ID),
-                    hit.document().get(DESCRIPTION), hit.document().get(LAST_RENOVATION_DATE));
-        }
-
-        // list facets
-        for (String field : Objects.requireNonNull(result.facets()).keySet()) {
-            System.out.println(field + ":");
-            for (SearchResult.FacetValue value : Objects.requireNonNull(result.facets()).get(field)) {
-                if (value.value() != null) {
-                    System.out.printf("\t%s: %s\n", value.value(), value.count());
-                } else {
-                    System.out.printf("\t%s-%s: %s\n", value.from() == null ? "min" : value.from(),
-                            value.to() == null ? "max" : value.to(), value.count());
-                }
-            }
-        }
+        SearchOptions options =
+                new SearchOptions()
+                        .setIncludeTotalResultCount(true)
+                        .setFilter("Rooms/all(r: r/BaseRate lt 260)")
+                        .setOrderBy(LAST_RENOVATION_DATE + " desc")
+                        .setSelect(HOTEL_ID + "," + DESCRIPTION + "," + LAST_RENOVATION_DATE)
+                        .setSearchFields(ROOMS + "/" + DESCRIPTION)
+                        .setFacets(TAGS, RATING)
+                        .setHighlightFields(HOTEL_NAME)
+                        .setHighlightPreTag("*pre*")
+                        .setHighlightPostTag("*post*")
+                        .setTop(10)
+                        .setMinimumCoverage(0.75);
+        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
+        SearchPagedFlux searchPagedFlux = indexClient.search(
+                "Mountain", options, new RequestOptions());
+        int size = searchPagedFlux.collectList().block().size();
+        Flux<SearchPagedResponse> pagedResponseFlux = searchPagedFlux.byPage();
+        pagedResponseFlux.subscribe(searchPagedResponse -> {
+            System.out.printf("Found %s hits, coverage: %s\n", size, searchPagedResponse.getCoverage());
+            searchPagedResponse.getValue().forEach(searchResult -> {
+                System.out.printf("\tid: %s, name: %s, LastRenovationDate: %s\n", searchResult.getDocument().get(HOTEL_ID),
+                        searchResult.getDocument().get(DESCRIPTION), searchResult.getDocument().get(LAST_RENOVATION_DATE));
+            });
+            searchPagedResponse.getFacets().keySet().forEach(field -> {
+                System.out.println(field + ":");
+                searchPagedResponse.getFacets().get(field).forEach(facetResult -> {
+                    if (facetResult.getAdditionalProperties() != null) {
+                        System.out.printf("\t%s: %s\n", facetResult.getAdditionalProperties(), facetResult.getCount());
+                    } else {
+                        Map<String, Object> additionalProperties = facetResult.getAdditionalProperties();
+                        System.out.printf("\t%s-%s: %s\n", additionalProperties.get("form") == null ? "min" : additionalProperties.get("form"),
+                                additionalProperties.get("to") == null ? "max" : additionalProperties.get("to"), facetResult.getCount());
+                    }
+                });
+            });
+        });
     }
 
     void lookup() throws IOException {
-        Map<String, Object> document = client.lookup("10");
+        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
+        SearchDocument document = indexClient.getDocument("10").block();
         System.out.println("Document lookup, key='10'");
         System.out.printf("\tname: %s\n", document.get(HOTEL_NAME));
         System.out.printf("\trenovated: %s\n", document.get(LAST_RENOVATION_DATE));
@@ -217,11 +170,14 @@ class DemoOperations {
     }
 
     void suggest() throws IOException {
-        SuggestOptions options = SuggestOptions.builder().fuzzy(true).build();
-        SuggestResult result = client.suggest("res", "sg", options);
-        System.out.println("Suggest results, coverage: " + result.coverage());
-        for (SuggestHit hit : result.hits()) {
-            System.out.printf("\ttext: %s (id: %s)\n", hit.text(), hit.document().get(HOTEL_ID));
-        }
+        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
+        SuggestOptions options = new SuggestOptions().setUseFuzzyMatching(true);
+        indexClient.suggest("res", "sg", options, new RequestOptions())
+                .byPage().subscribe(suggestPagedResponse -> {
+            System.out.println("Suggest results, coverage: " + suggestPagedResponse.getCoverage());
+            suggestPagedResponse.getValue().forEach(suggestResult -> {
+                System.out.printf("\ttext: %s (id: %s)\n", suggestResult.getText(), suggestResult.getDocument().get(HOTEL_ID));
+            });
+        });
     }
 }
