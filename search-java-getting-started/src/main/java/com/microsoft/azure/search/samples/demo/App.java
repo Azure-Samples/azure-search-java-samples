@@ -6,6 +6,7 @@ public class App {
             AzureSearchConfig config = AzureSearchConfig.fromJson("/azure_search_config");
             DemoOperations demoOperations = new DemoOperations(config);
             demoOperations.createIndex();
+            Thread.sleep(1000L); // wait a second to allow indexing to happen
             demoOperations.indexData();
             Thread.sleep(1000L); // wait a second to allow indexing to happen
             demoOperations.searchSimple();

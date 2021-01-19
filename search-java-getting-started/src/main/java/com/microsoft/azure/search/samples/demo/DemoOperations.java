@@ -1,12 +1,15 @@
 package com.microsoft.azure.search.samples.demo;
 
-import com.azure.search.*;
-import com.azure.search.models.*;
-import com.azure.search.util.SearchPagedFlux;
-import com.azure.search.util.SearchPagedResponse;
+import com.azure.core.credential.AzureKeyCredential;
+import com.azure.search.documents.SearchServiceVersion;
+import com.azure.search.documents.indexes.SearchIndexAsyncClient;
+import com.azure.search.documents.indexes.SearchIndexClientBuilder;
+import com.azure.search.documents.indexes.models.*;
+import com.azure.search.documents.models.SearchOptions;
+import com.azure.search.documents.models.SuggestOptions;
+import com.azure.search.documents.util.SearchPagedFlux;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.*;
@@ -22,12 +25,12 @@ import static com.microsoft.azure.search.samples.demo.Room.*;
 class DemoOperations {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new Jdk8Module());
     private static final String INDEX_NAME = "hotels";
-    private final SearchServiceAsyncClient serviceClient;
+    private final SearchIndexAsyncClient indexAsyncClient;
 
     DemoOperations(AzureSearchConfig config) {
-        serviceClient = new SearchServiceClientBuilder()
+        indexAsyncClient = new SearchIndexClientBuilder()
                 .endpoint(String.format(config.endPoint(), config.serviceName()))
-                .credential(new SearchApiKeyCredential(config.apiKey()))
+                .credential(new AzureKeyCredential(config.apiKey()))
                 .serviceVersion(SearchServiceVersion.getLatest())
                 .buildAsyncClient();
     }
@@ -38,92 +41,96 @@ class DemoOperations {
         // Typical application initialization may createIndex an index if it doesn't exist. Deleting an index
         // on initialization is a sample-only thing to do
         System.out.println("Confirming that index does not exist (Expect to receive \"Error: No index with the name 'hotels' was found in the index\")");
-        Index index = new Index();
-        index.setName(INDEX_NAME);
+        SearchIndex index = new SearchIndex(INDEX_NAME);
         index.setFields(Arrays.asList(
-                new Field().setName(HOTEL_ID).setKey(true).setFilterable(true).setType(DataType.fromString("Edm.String")),
-                new Field().setName(HOTEL_NAME).setSearchable(true).setType(DataType.fromString("Edm.String")),
-                new Field().setName(DESCRIPTION).setSearchable(true).setType(DataType.fromString("Edm.String")),
-                new Field().setName(DESCRIPTION_FR).setSearchable(true).setType(DataType.fromString("Edm.String")),
-                new Field().setName(CATEGORY).setSearchable(true).setType(DataType.fromString("Edm.String")),
-                new Field().setName(TAGS).setSearchable(true).setFilterable(true).setFacetable(true).setType(DataType.fromString("Collection(Edm.String)")),
-                new Field().setName(PARKING_INCLUDED).setFilterable(true).setFacetable(true).setType(DataType.fromString("Edm.Boolean")),
-                new Field().setName(SMOKING_ALLOWED).setFilterable(true).setFacetable(true).setType(DataType.fromString("Edm.Boolean")),
-                new Field().setName(LAST_RENOVATION_DATE).setFilterable(true).setSortable(true).setFacetable(true).setType(DataType.fromString("Edm.DateTimeOffset")),
-                new Field().setName(RATING).setFilterable(true).setFacetable(true).setType(DataType.fromString("Edm.Double")),
+                new SearchField(HOTEL_ID, SearchFieldDataType.STRING).setKey(true).setFilterable(true),
+                new SearchField(HOTEL_NAME, SearchFieldDataType.STRING).setSearchable(true),
+                new SearchField(DESCRIPTION, SearchFieldDataType.STRING).setSearchable(true),
+                new SearchField(DESCRIPTION_FR, SearchFieldDataType.STRING).setSearchable(true),
+                new SearchField(CATEGORY, SearchFieldDataType.STRING).setSearchable(true).setFilterable(true).setSortable(true).setFacetable(true),
+                new SearchField(TAGS, SearchFieldDataType.collection(SearchFieldDataType.STRING)).setSearchable(true).setFilterable(true).setFacetable(true),
+                new SearchField(PARKING_INCLUDED, SearchFieldDataType.BOOLEAN).setFilterable(true).setFacetable(true),
+                new SearchField(SMOKING_ALLOWED, SearchFieldDataType.BOOLEAN).setFilterable(true).setFacetable(true),
+                new SearchField(LAST_RENOVATION_DATE, SearchFieldDataType.DATE_TIME_OFFSET).setFilterable(true).setFacetable(true).setSortable(true),
+                new SearchField(RATING, SearchFieldDataType.DOUBLE).setFilterable(true).setSortable(true).setFacetable(true),
                 defineAddressField(),
                 defineRoomsField()
         ));
-        index.setSuggesters(Arrays.asList(new Suggester().setName("sg").setSearchMode("analyzingInfixMatching").setSourceFields(Arrays.asList(HOTEL_NAME))));
-        serviceClient.createOrUpdateIndex(index);
+        index.setSuggesters(new SearchSuggester("sg", Arrays.asList(HOTEL_NAME)));
+        indexAsyncClient.createOrUpdateIndex(index).block();
     }
 
-    private Field defineAddressField() {
-        return new Field().setName("Address").setType(DataType.fromString("Edm.ComplexType")).setFields(
+    private SearchField defineAddressField() {
+        return new SearchField("Address", SearchFieldDataType.fromString("Edm.ComplexType")).setFields(
                 Arrays.asList(
-                        new Field().setName(STREET_ADDRESS).setSearchable(true).setType(DataType.fromString("Edm.String")),
-                        new Field().setName(CITY).setSearchable(true).setType(DataType.fromString("Edm.String")),
-                        new Field().setName(STATE).setSearchable(true).setType(DataType.fromString("Edm.String")),
-                        new Field().setName(ZIP_CODE).setSearchable(true).setType(DataType.fromString("Edm.String"))
+                        new SearchField(STREET_ADDRESS, SearchFieldDataType.STRING).setSearchable(true),
+                        new SearchField(CITY, SearchFieldDataType.STRING).setSearchable(true),
+                        new SearchField(STATE, SearchFieldDataType.STRING).setSearchable(true),
+                        new SearchField(ZIP_CODE, SearchFieldDataType.STRING).setSearchable(true)
                 )
         );
     }
 
-    private Field defineRoomsField() {
-        return new Field().setName("Rooms").setType(DataType.fromString("Collection(Edm.ComplexType)")).setFields(
+    private SearchField defineRoomsField() {
+        return new SearchField("Rooms", SearchFieldDataType.collection(SearchFieldDataType.fromString("Edm.ComplexType"))).setFields(
                 Arrays.asList(
-                        new Field().setName(DESCRIPTION).setType(DataType.fromString("Edm.String")).setSearchable(true).setAnalyzer("en.lucene"),
-                        new Field().setName(DESCRIPTION_FR).setType(DataType.fromString("Edm.String")).setSearchable(true).setAnalyzer("fr.lucene"),
-                        new Field().setName(TYPE).setType(DataType.fromString("Edm.String")).setSearchable(true),
-                        new Field().setName(BASE_RATE).setType(DataType.fromString("Edm.Double")).setFilterable(true).setFacetable(true),
-                        new Field().setName(BED_OPTIONS).setType(DataType.fromString("Edm.String")).setSearchable(true),
-                        new Field().setName(SLEEPS_COUNT).setType(DataType.fromString("Edm.Int32")).setFilterable(true).setFacetable(true),
-                        new Field().setName(SMOKING_ALLOWED).setType(DataType.fromString("Edm.Boolean")).setFacetable(true).setFacetable(true),
-                        new Field().setName(TAGS).setType(DataType.fromString("Collection(Edm.String)")).setSearchable(true).setFilterable(true).setFacetable(true)
+                        new SearchField(DESCRIPTION, SearchFieldDataType.STRING).setSearchable(true).setAnalyzerName(LexicalAnalyzerName.EN_LUCENE),
+                        new SearchField(DESCRIPTION_FR, SearchFieldDataType.STRING).setSearchable(true).setAnalyzerName(LexicalAnalyzerName.FR_LUCENE),
+                        new SearchField(TYPE, SearchFieldDataType.STRING).setSearchable(true),
+                        new SearchField(BASE_RATE, SearchFieldDataType.DOUBLE).setFilterable(true).setFacetable(true),
+                        new SearchField(BED_OPTIONS, SearchFieldDataType.STRING).setSearchable(true),
+                        new SearchField(SLEEPS_COUNT, SearchFieldDataType.INT32).setFilterable(true).setFacetable(true),
+                        new SearchField(SMOKING_ALLOWED, SearchFieldDataType.BOOLEAN).setFilterable(true).setFacetable(true),
+                        new SearchField(TAGS, SearchFieldDataType.collection(SearchFieldDataType.STRING)).setSearchable(true).setFilterable(true).setFacetable(true)
                 )
         );
     }
 
-    void indexData() throws IOException {
+    void indexData() throws IOException, InterruptedException {
         // In this case we createIndex sample data in-memory. Typically this will come from another database, file or
         // API and will be turned into objects with the desired shape for indexing
-        List<String> ops = new ArrayList<>();
+        List<Map<String, Object>> ops = new ArrayList<>();
         for (String id : new String[]{"hotel1", "hotel10", "hotel11", "hotel12", "hotel13"}) {
             Hotel hotel = OBJECT_MAPPER.readValue(getClass().getResource("/" + id), Hotel.class);
-            ops.add(IndexOperation.uploadOperation(hotel));
+            ops.add(new ObjectMapper().convertValue(hotel, Map.class));
         }
-        ops.add(IndexOperation.deleteOperation(HOTEL_ID, "1"));
-
-        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
-        indexClient.mergeOrUploadDocumentsWithResponse(ops).subscribe(response -> {
-            if (response.getStatusCode() == 207) {
+        indexAsyncClient.getSearchAsyncClient(INDEX_NAME)
+                .mergeOrUploadDocuments(ops).block().getResults().forEach(indexingResult -> {
+            if (indexingResult.getStatusCode() == 207) {
                 System.out.print("handle partial success, check individual client status/error message");
             }
-            response.getValue().getResults().forEach(indexingResult -> {
-                System.out.printf("Operation for id: %s, success: %s\n", indexingResult.getKey(), indexingResult.getStatusCode());
-            });
+            System.out.printf("Operation for id: %s, success: %s\n", indexingResult.getKey(), indexingResult.getStatusCode());
+        });
+        ops.clear();
+        ops.add(IndexOperation.deleteOperation(HOTEL_ID, "1"));
+        indexAsyncClient.getSearchAsyncClient(INDEX_NAME)
+                .deleteDocuments(ops).block().getResults().forEach(indexingResult -> {
+            if (indexingResult.getStatusCode() == 207) {
+                System.out.print("handle partial success, check individual client status/error message");
+            }
+            System.out.printf("Operation for id: %s, success: %s\n", indexingResult.getKey(), indexingResult.getStatusCode());
         });
     }
 
-    void searchSimple() throws IOException {
+    void searchSimple() {
 
-        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
         SearchOptions options =
-                new SearchOptions().setIncludeTotalResultCount(true);
-        SearchPagedFlux searchPagedFlux =
-                indexClient.search("Lobby", options, new RequestOptions());
-        System.out.printf("Found %s hits\n", searchPagedFlux.count().block());
+                new SearchOptions().setIncludeTotalCount(true);
+        SearchPagedFlux searchPagedFlux = indexAsyncClient
+                .getSearchAsyncClient(INDEX_NAME).search("Lobby", options);
+        System.out.printf("Found %s hits\n", searchPagedFlux.getTotalCount().block());
         searchPagedFlux.subscribe(searchResult -> {
-            System.out.printf("\tid: %s, name: %s, score: %s\n", searchResult.getDocument().get(HOTEL_ID),
-                    searchResult.getDocument().get(HOTEL_NAME), searchResult.getScore());
+            Map<String, Object> resultMap = searchResult.getDocument(Map.class);
+            System.out.printf("\tid: %s, name: %s, score: %s\n", resultMap.get(HOTEL_ID),
+                    resultMap.get(HOTEL_NAME), searchResult.getScore());
         });
     }
 
-    void searchAllFeatures() throws IOException {
+    void searchAllFeatures() {
 
         SearchOptions options =
                 new SearchOptions()
-                        .setIncludeTotalResultCount(true)
+                        .setIncludeTotalCount(true)
                         .setFilter("Rooms/all(r: r/BaseRate lt 260)")
                         .setOrderBy(LAST_RENOVATION_DATE + " desc")
                         .setSelect(HOTEL_ID + "," + DESCRIPTION + "," + LAST_RENOVATION_DATE)
@@ -134,50 +141,40 @@ class DemoOperations {
                         .setHighlightPostTag("*post*")
                         .setTop(10)
                         .setMinimumCoverage(0.75);
-        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
-        SearchPagedFlux searchPagedFlux = indexClient.search(
-                "Mountain", options, new RequestOptions());
-        int size = searchPagedFlux.collectList().block().size();
-        Flux<SearchPagedResponse> pagedResponseFlux = searchPagedFlux.byPage();
-        pagedResponseFlux.subscribe(searchPagedResponse -> {
-            System.out.printf("Found %s hits, coverage: %s\n", size, searchPagedResponse.getCoverage());
-            searchPagedResponse.getValue().forEach(searchResult -> {
-                System.out.printf("\tid: %s, name: %s, LastRenovationDate: %s\n", searchResult.getDocument().get(HOTEL_ID),
-                        searchResult.getDocument().get(DESCRIPTION), searchResult.getDocument().get(LAST_RENOVATION_DATE));
-            });
-            searchPagedResponse.getFacets().keySet().forEach(field -> {
+        SearchPagedFlux searchPagedFlux = indexAsyncClient
+                .getSearchAsyncClient(INDEX_NAME).search("Mountain", options);
+        System.out.printf("Found %s hits, coverage: %s\n", searchPagedFlux.getTotalCount().block(), searchPagedFlux.getCoverage().block());
+        searchPagedFlux.getFacets().subscribe(facetResults -> {
+            facetResults.keySet().forEach(field -> {
                 System.out.println(field + ":");
-                searchPagedResponse.getFacets().get(field).forEach(facetResult -> {
-                    if (facetResult.getAdditionalProperties() != null) {
-                        System.out.printf("\t%s: %s\n", facetResult.getAdditionalProperties(), facetResult.getCount());
-                    } else {
-                        Map<String, Object> additionalProperties = facetResult.getAdditionalProperties();
-                        System.out.printf("\t%s-%s: %s\n", additionalProperties.get("form") == null ? "min" : additionalProperties.get("form"),
-                                additionalProperties.get("to") == null ? "max" : additionalProperties.get("to"), facetResult.getCount());
-                    }
-                });
+                if (facetResults.get(field) != null) {
+                    facetResults.get(field).forEach(facetResult -> {
+                        System.out.printf("\t%s: %s\n", facetResult.getAdditionalProperties().get("value"), facetResult.getCount());
+                    });
+                } else {
+                    System.out.printf("\t%s-%s: %s\n", facetResults.get("from") == null ? "min" : facetResults.get("from"),
+                            facetResults.get("to") == null ? "max" : facetResults.get("to"), facetResults.size());
+                }
             });
         });
     }
 
-    void lookup() throws IOException {
-        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
-        SearchDocument document = indexClient.getDocument("10").block();
+    void lookup() {
+        Map<String, Object> hotel = indexAsyncClient.getSearchAsyncClient(INDEX_NAME)
+                .getDocument("10", Map.class).block();
         System.out.println("Document lookup, key='10'");
-        System.out.printf("\tname: %s\n", document.get(HOTEL_NAME));
-        System.out.printf("\trenovated: %s\n", document.get(LAST_RENOVATION_DATE));
-        System.out.printf("\trating: %s\n", document.get(RATING));
+        System.out.printf("\tname: %s\n", hotel.get(HOTEL_NAME));
+        System.out.printf("\trenovated: %s\n", hotel.get(LAST_RENOVATION_DATE));
+        System.out.printf("\trating: %s\n", hotel.get(RATING));
     }
 
-    void suggest() throws IOException {
-        SearchIndexAsyncClient indexClient = serviceClient.getIndexClient(INDEX_NAME);
+    void suggest() {
         SuggestOptions options = new SuggestOptions().setUseFuzzyMatching(true);
-        indexClient.suggest("res", "sg", options, new RequestOptions())
-                .byPage().subscribe(suggestPagedResponse -> {
-            System.out.println("Suggest results, coverage: " + suggestPagedResponse.getCoverage());
-            suggestPagedResponse.getValue().forEach(suggestResult -> {
-                System.out.printf("\ttext: %s (id: %s)\n", suggestResult.getText(), suggestResult.getDocument().get(HOTEL_ID));
-            });
+        System.out.println("Document suggest, suggesterName='sg'");
+        indexAsyncClient.getSearchAsyncClient(INDEX_NAME)
+                .suggest("res", "sg", options)
+                .collectList().block().forEach(suggestResult -> {
+            System.out.printf("\ttext: %s (id: %s)\n", suggestResult.getText(), suggestResult.getDocument(Map.class).get(HOTEL_ID));
         });
     }
 }

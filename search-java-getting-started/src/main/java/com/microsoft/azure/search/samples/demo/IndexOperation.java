@@ -12,16 +12,9 @@ import java.util.Map;
 public class IndexOperation {
     private static  ObjectMapper MAPPER  = new ObjectMapper();
 
-    static String uploadOperation(Object object) throws JsonProcessingException {
-        Map<String, Object> map = new ObjectMapper().convertValue(object, Map.class);
-        map.put("@search.action", "upload");
-        return MAPPER.writeValueAsString(map);
-    }
-
-    static String deleteOperation(String keyName, String keyValue) throws JsonProcessingException {
+    static Map<String, Object> deleteOperation(String keyName, String keyValue) {
         Map<String, Object> map = new HashMap<>();
         map.put(keyName, keyValue);
-        map.put("@search.action", "delete");
-        return MAPPER.writeValueAsString(map);
+        return map;
     }
 }
