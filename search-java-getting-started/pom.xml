@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <jackson.version>2.9.10.1</jackson.version>
+        <jackson.version>2.12.1</jackson.version>
         <auto-value.version>1.6.2</auto-value.version>
         <junit.version>5.4.2</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
