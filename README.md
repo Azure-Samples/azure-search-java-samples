@@ -1,8 +1,8 @@
 # Azure Cognitive Search Java Samples repository
 
-The **java-rest-api** branch of the **azure-search-java-samples** repository contains Java sample code that calls the [Azure Cognitive Search REST APIs](https://docs.microsoft.com/rest/api/searchservice/). 
+The **java-rest-api** branch of the **azure-search-java-samples** repository contains Java samples that call the [Azure Cognitive Search REST APIs](https://docs.microsoft.com/rest/api/searchservice/). 
 
-Prior the release of the [Azure Cognitive Search client library for Java](https://docs.microsoft.com/java/api/overview/azure/search-documents-readme), REST was the only option if you wanted to build a Cognitive Search solution in Java. This branch preserves the Java-REST samples so that the master branch can move forward with the new client library. 
+Prior the release of the [Azure Cognitive Search client library for Java](https://docs.microsoft.com/java/api/overview/azure/search-documents-readme), REST was the only option for building Cognitive Search solutions in Java. This branch preserves older Java-REST samples so that the master branch can move forward with the new client library. 
 
 If you are using the REST APIs in a Java search solution, we encourage you to upgrade to the client library and the Java SDK. In the future, all new sample work and maintenance in the master branch will target the SDK.
 

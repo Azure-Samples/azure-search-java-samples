@@ -1,4 +1,4 @@
----
+<!-- ---
 page_type: sample
 languages:
   - java
@@ -9,7 +9,7 @@ products:
   - azure
   - azure-cognitive-search
 urlFragment: search-java-indexer-demo
----
+--- -->
 
 # Index from Cosmos DB using Java, a search indexer, and REST APIs
 
