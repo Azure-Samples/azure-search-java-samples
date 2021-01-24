@@ -11,11 +11,11 @@ products:
 urlFragment: search-java-indexer-demo
 ---
 
-# Index data from Cosmos DB using Java and Azure Cognitive Search indexers
+# Index from Cosmos DB using Java, a search indexer, and REST APIs
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample shows you how to write a Java client that creates an Azure Cognitive Search indexer, applies that indexer to documents, and runs queries. The sample uses the Search Service REST APIs.
+This sample shows you how to write a Java client that creates an Azure Cognitive Search indexer, applies that indexer to documents, and runs queries. The sample uses the [Search Service REST APIs](https://docs.microsoft.com/rest/api/searchservice).
 
 ## Contents
 

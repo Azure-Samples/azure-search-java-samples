@@ -9,11 +9,11 @@ products:
   - azure-cognitive-search
 urlFragment: java-sample-quickstart
 ---
-# Quickstart sample for Azure Cognitive Search using Java
+# Quickstart sample for Azure Cognitive Search using Java and REST
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample shows you how to write a Java client that accesses Azure Cognitive Search, creates an index, pushes documents to the index, and runs queries. This code sample uses the Search Service REST APIs. 
+This sample shows you how to write a Java client that accesses Azure Cognitive Search, creates an index, pushes documents to the index, and runs queries. This Java code sample uses the [Search Service REST APIs](https://docs.microsoft.com/rest/api/searchservice). 
 
 ## Contents
 

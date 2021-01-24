@@ -10,11 +10,11 @@ products:
 urlFragment: search-java-getting-started
 ---
 
-# Get started with Azure Cognitive Search using Java
+# Get started with Azure Cognitive Search using Java and REST
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This is a sample of how to interact with Azure Cognitive Search using Java. Not only does it execute most of the common API requests against the search service, but it also implements some of the best practices such as handling retries, etc.  
+This is a sample of how to interact with Azure Cognitive Search using Java. Not only does it execute most of the common [REST API requests](https://docs.microsoft.com/rest/api/searchservice) against the search service, but it also implements some of the best practices such as handling retries, etc.  
 
 ## Contents
 
