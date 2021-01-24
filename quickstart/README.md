@@ -1,4 +1,4 @@
----
+<!-- ---
 page_type: sample
 languages:
   - java
@@ -8,7 +8,7 @@ products:
   - azure
   - azure-cognitive-search
 urlFragment: java-sample-quickstart
----
+--- -->
 # Quickstart sample for Azure Cognitive Search using Java and REST
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
