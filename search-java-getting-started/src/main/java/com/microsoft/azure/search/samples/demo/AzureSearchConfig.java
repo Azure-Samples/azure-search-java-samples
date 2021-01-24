@@ -16,6 +16,7 @@ public abstract class AzureSearchConfig {
     public static final String INDEXER_NAME = "IndexerName";
     public static final String API_VERSION = "ApiVersion";
     public static final String DATASOURCE_NAME = "DatasourceName";
+    public static final String END_POINT = "EndPoint";
 
     static AzureSearchConfig fromJson(String configJsonResourceName) throws java.io.IOException {
         ObjectMapper configMapper = new ObjectMapper();
@@ -31,8 +32,9 @@ public abstract class AzureSearchConfig {
             @JsonProperty(INDEX_NAME) String indexName,
             @JsonProperty(INDEXER_NAME) String indexerName,
             @JsonProperty(API_VERSION) String apiVersion,
-            @JsonProperty(DATASOURCE_NAME) String datasourceName) {
-        return new AutoValue_AzureSearchConfig(serviceName, apiKey, indexName, indexerName, apiVersion, datasourceName);
+            @JsonProperty(DATASOURCE_NAME) String datasourceName,
+            @JsonProperty(END_POINT) String endPoint) {
+        return new com.microsoft.azure.search.samples.demo.AutoValue_AzureSearchConfig(serviceName, apiKey, indexName, indexerName, apiVersion, datasourceName, endPoint);
     }
 
     @JsonProperty(SERVICE_NAME)
@@ -52,5 +54,8 @@ public abstract class AzureSearchConfig {
 
     @JsonProperty(DATASOURCE_NAME)
     public abstract String datasourceName();
+
+    @JsonProperty(END_POINT)
+    public  abstract String endPoint();
 }
 

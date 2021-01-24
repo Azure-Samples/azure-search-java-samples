@@ -4,5 +4,6 @@
     "IndexName" : "hotels",
     "IndexerName" : "hotels-indexer",
     "ApiVersion" : "2019-05-06",
-    "DatasourceName" : "hotels-datasource"
+    "DatasourceName" : "hotels-datasource",
+    "EndPoint" : "https://%s.search.windows.net"
 }
