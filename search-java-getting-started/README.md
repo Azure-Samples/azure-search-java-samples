@@ -3,7 +3,7 @@ page_type: sample
 languages:
 - java
 name: "Get started with Azure Cognitive Search in Java"
-description: "Demonstrates fundamental Azure Cognitive Search operations in a Java console app. Includes error handling and supports the Rooms complex collection in the Hotels demo data set."
+description: "Demonstrates the com.azure:azure-search-documents package to create, load, and query a search index in a Java console app."
 products:
 - azure
 - azure-cognitive-search
@@ -14,14 +14,13 @@ urlFragment: search-java-getting-started
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This is a sample of how to interact with Azure Cognitive Search using Java. Not only does it execute most of the common API requests against the search service, but it also implements some of the best practices such as handling retries, etc.  
+This is a sample of how to interact with Azure Cognitive Search using Java and the [com.azure:azure-search-documents](https://search.maven.org/artifact/com.azure/azure-search-documents).
 
 ## Contents
 
 | File/folder | Description |
 |-------------|-------------|
 | `src/main`       | Sample source code. |
-| `src/test` | Test code exercising URL and query construction. |
 | `pom.xml` | Maven 3 project file. |
 | `CONTRIBUTING.md` | Guidelines for contributing to this project. |
 | `LICENSE` | MIT License. | 
@@ -70,13 +69,14 @@ Finally, the Maven process should exit with a success message.
 
 ## Key concepts
 
-The app specifies a number of domain classes whose structure mirrors the index of the Hotels dataset. This index shows the use of complex types in Azure Cognitive Search, such as the `Address` and `Room` types. 
+This sample uses the [com.azure:azure-search-documents](https://search.maven.org/artifact/com.azure/azure-search-documents) package. The app specifies a number of domain classes whose structure mirrors the index of the Hotels dataset. This index shows the use of complex types in Azure Cognitive Search, such as the `Address` and `Room` types. 
 
-The `SearchServiceHelper` class defines methods that help querying a search index. The `SearchIndexClient` uses these methods to accomplish the various tasks.
+You can review [package readme](https://docs.microsoft.com/java/api/overview/azure/search-documents-readme) for an overview and links to [source code](https://github.com/Azure/azure-sdk-for-java/tree/azure-search-documents_11.1.2/sdk/search/azure-search-documents/src), [API reference](https://azure.github.io/azure-sdk-for-java/), and [API samples](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/search/azure-search-documents/src/samples/java/com/azure/search/documents).
 
-The files `SearchOptions` and `SuggestOptions` use the Builder pattern to compose the various query parameters. These classes and their associated testing classes may be of use in your own code. 
+The Java client library provides **SearchIndexAsyncClient** to create the index, and **SearchAsyncClient** to load and query the index. 
 
-    
+Besides search index creation and queries, the sample demonstrates suggesters, which offers a completed hotel name based on partial term input. 
+
 ## Next steps
 
 You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).
