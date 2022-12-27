@@ -27,8 +27,8 @@ import com.azure.search.documents.util.SearchPagedIterable;
 public class App {
 
     public static void main(String[] args) {
-        var searchServiceEndpoint = "https://azs-pqo-test-centus2.search.windows.net";
-        var adminKey = new AzureKeyCredential("C47D109CE2B53E7A94A79224D8BF99B1");
+        var searchServiceEndpoint = "https://<your-service>search.windows.net";
+        var adminKey = new AzureKeyCredential("<your-admin-key>");
         String indexName = "hotels-demo";
 
         SearchIndexClient searchIndexClient = new SearchIndexClientBuilder()
