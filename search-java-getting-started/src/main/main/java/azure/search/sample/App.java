@@ -27,7 +27,9 @@ import com.azure.search.documents.util.SearchPagedIterable;
 public class App {
 
     public static void main(String[] args) {
-        var searchServiceEndpoint = "https://<your-service>search.windows.net";
+        // Connection to your search service.
+        // Provide your service name and a valid admin API key.
+        var searchServiceEndpoint = "https://<your-service>.search.windows.net";
         var adminKey = new AzureKeyCredential("<your-admin-key>");
         String indexName = "hotels-demo";
 
