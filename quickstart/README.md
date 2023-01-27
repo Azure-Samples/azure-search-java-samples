@@ -2,12 +2,13 @@
 page_type: sample
 languages:
 - java
-name: "Java quickstart for Azure Cognitive Search"
-description: "Use the azure-search-documents in the Azure SDK for Java to create, load, and query a search index in Cognitive Search."
+name: Quickstart in Java
+description: |
+  Learn how to create, load, and query an Azure Cognitive Search index using the Azure SDK for Java.
 products:
 - azure
 - azure-cognitive-search
-urlFragment: search-java-getting-started
+urlFragment: java-quickstart
 ---
 
 # Java quickstart for Azure Cognitive Search
