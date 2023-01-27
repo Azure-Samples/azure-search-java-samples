@@ -2,31 +2,21 @@
 page_type: sample
 languages:
 - java
-name: "Get started with Azure Cognitive Search in Java"
-description: "Demonstrates the com.azure:azure-search-documents package to create, load, and query a search index in a Java console app."
+name: "Java quickstart for Azure Cognitive Search"
+description: "Use the azure-search-documents in the Azure SDK for Java to create, load, and query a search index in Cognitive Search."
 products:
 - azure
 - azure-cognitive-search
 urlFragment: search-java-getting-started
 ---
 
-# Get started with Azure Cognitive Search using Java
+# Java quickstart for Azure Cognitive Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample demonstrates how to create, load, and query a search index on Azure Cognitive Search using Java and the [com.azure:azure-search-documents](https://search.maven.org/artifact/com.azure/azure-search-documents) package.
+Learn how to create, load, and query a search index on Azure Cognitive Search using Java and the [com.azure:azure-search-documents](https://search.maven.org/artifact/com.azure/azure-search-documents) package.
 
-For detailed instructions, see [Quickstart: Create an Azure Cognitive Search index in Java](https://learn.microsoft.com/azure/search/search-get-started-java).
-
-## Contents
-
-| File/folder | Description |
-|-------------|-------------|
-| `src/main`       | Sample source code. |
-| `pom.xml` | Maven 3 project file. |
-| `CONTRIBUTING.md` | Guidelines for contributing to this project. |
-| `LICENSE` | MIT License. | 
-| `README.md`   | This file. |
+This readme explains how to configure and run the sample. For details about the code, see [Quickstart: Create search index in Java](https://learn.microsoft.com/azure/search/search-get-started-java).
 
 ## Prerequisites
 
