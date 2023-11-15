@@ -1,10 +1,10 @@
-# Java samples for Azure Cognitive Search
+# Java samples for Azure AI Search
 
-This repository contains Java code samples used in Azure Cognitive Search documentation. Unless noted otherwise, all samples run on the shared (free) pricing tier of an [Azure Cognitive Search service](https://learn.microsoft.com/azure/search/search-create-service-portal).  
+This repository contains Java code samples used in Azure AI Search documentation. Unless noted otherwise, all samples run on the shared (free) pricing tier of an [Azure AI Search service](https://learn.microsoft.com/azure/search/search-create-service-portal).  
 
-+ Use the **main** branch for code samples that call the [Azure Cognitive Search client library for Java](https://docs.microsoft.com/java/api/overview/azure/search-documents-readme).
++ Use the **main** branch for code samples that call the [Azure AI Search client library for Java](https://docs.microsoft.com/java/api/overview/azure/search-documents-readme).
 
-+ Use the [**java-rest-api**](https://github.com/Azure-Samples/azure-search-java-samples/tree/java-rest-api)  branch for older code samples that call the Cognitive Search REST APIs.
++ Use the [**java-rest-api**](https://github.com/Azure-Samples/azure-search-java-samples/tree/java-rest-api)  branch for older code samples that call the AI Search REST APIs.
 
 | Sample | Description |
 |--------|-------------|
