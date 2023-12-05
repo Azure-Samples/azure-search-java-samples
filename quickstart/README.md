@@ -2,7 +2,7 @@
 page_type: sample
 languages:
 - java
-name: Quickstart in Java
+name: Java quickstart for Azure AI Search
 description: |
   Learn how to create, load, and query an Azure AI Search index using the Azure SDK for Java.
 products:
