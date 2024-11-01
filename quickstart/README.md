@@ -23,9 +23,9 @@ This readme explains how to configure and run the sample. For details about the 
 
 - Azure AI Search. You can [create a search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal).
 
-- Install a Java SDK. This sample was tested on the [Microsoft Build of OpenJDK](https://learn.microsoft.com/java/openjdk/ins).
+- Install a Java SDK. This sample was tested on the [Microsoft Build of OpenJDK](https://learn.microsoft.com/java/openjdk/install).
 
-- Choose a strategy for building and running the project using [Maven](https://maven.apache.org/). This sample was tested using [Visual Studio Code](https://code.visualstudio.com/) with the [Java extension](https://vscode.trafficmanager.net/docs/java/extensions).
+- Choose a strategy for building and running the project using [Maven](https://maven.apache.org/). This sample was tested using [Visual Studio Code](https://code.visualstudio.com/) with the [Java extension](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack).
 
 ## Set up the sample
 
@@ -33,11 +33,15 @@ This readme explains how to configure and run the sample. For details about the 
 
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
 
-1. Get the [service name and admin API key](https://learn.microsoft.com/azure/search/search-get-started-java#get-a-key-and-url) of your service. You can find this information in the Azure portal.
+1. Get the [service name and admin API key](https://learn.microsoft.com/azure/search/search-get-started-java#get-a-key-and-url) of your search service. You can find this information in the Azure portal.
 
-1. In Visual Studio Code or another IDE, create a Maven project.
+1. In Visual Studio Code or another IDE, create a Java project.
 
-1. Configure access to the search service by editing the variables for `searchServiceEndpoint` and `adminKey` in the **App.java** class.
+   - Press Ctrl-Shift-P to open the command palette.
+   - Search for and then select **Java: Create Java Project**.
+   - Select **No Build**.
+
+1. Open **App.java** and configure access to the search service by editing the variables for `searchServiceEndpoint` and `adminKey`.
 
 ## Run the sample
 
@@ -54,4 +58,4 @@ Finally, the Maven process should exit with a success message.
 
 ## Next steps
 
-You can learn more about Azure AI Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure AI Search on the [official documentation site](https://learn.microsoft.com/azure/search).
