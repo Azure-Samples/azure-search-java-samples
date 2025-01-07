@@ -3,6 +3,17 @@
 
 package azure.search.sample;
 
+import com.azure.core.credential.AzureKeyCredential;
+import com.azure.search.documents.SearchClient;
+import com.azure.search.documents.SearchClientBuilder;
+import com.azure.search.documents.indexes.SearchIndexClient;
+import com.azure.search.documents.indexes.SearchIndexClientBuilder;
+import com.azure.search.documents.models.SearchOptions;
+import com.azure.search.documents.indexes.models.IndexDocumentsBatch;
+import com.azure.search.documents.indexes.models.SearchIndex;
+import com.azure.search.documents.indexes.models.SearchSuggester;
+import com.azure.search.documents.util.AutocompletePagedIterable;
+import com.azure.search.documents.util.SearchPagedIterable;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.time.OffsetDateTime;
@@ -10,19 +21,6 @@ import java.time.ZoneOffset;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
-
-import com.azure.core.credential.AzureKeyCredential;
-import com.azure.core.util.Context;
-import com.azure.search.documents.SearchClient;
-import com.azure.search.documents.SearchClientBuilder;
-import com.azure.search.documents.models.SearchOptions;
-import com.azure.search.documents.indexes.SearchIndexClient;
-import com.azure.search.documents.indexes.SearchIndexClientBuilder;
-import com.azure.search.documents.indexes.models.IndexDocumentsBatch;
-import com.azure.search.documents.indexes.models.SearchIndex;
-import com.azure.search.documents.indexes.models.SearchSuggester;
-import com.azure.search.documents.util.AutocompletePagedIterable;
-import com.azure.search.documents.util.SearchPagedIterable;
 
 public class App {
 
