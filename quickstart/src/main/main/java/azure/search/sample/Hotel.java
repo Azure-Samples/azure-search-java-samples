@@ -40,13 +40,6 @@ public class Hotel {
     public String description;
 
     /**
-     * French description
-     */
-    @JsonProperty("DescriptionFr")
-    @SearchableField(analyzerName = "fr.lucene")
-    public String descriptionFr;
-
-    /**
      * Category
      */
     @JsonProperty("Category")
