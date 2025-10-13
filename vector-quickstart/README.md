@@ -15,50 +15,9 @@ urlFragment: java-vector-quickstart
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-Learn how to create, load, and query a search index with vector search on Azure AI Search using Java and the [com.azure:azure-search-documents](https://search.maven.org/artifact/com.azure/azure-search-documents) package.
+Vector search capabilities using Azure AI Search with HNSW algorithm. This Java sample demonstrates how to create an index with vector field configurations, load documents with pre-computed embeddings, and execute vector similarity searches and hybrid queries. Requires Azure AI Search Basic tier or higher. This sample is built on Java 21 (LTS) from the [Microsoft Build of OpenJDK](https://learn.microsoft.com/java/openjdk/install) using the [Maven](https://maven.apache.org/) build system. This sample has dependencies on the [Azure AI Search](https://search.maven.org/artifact/com.azure/azure-search-documents) and [Azure Identity](https://search.maven.org/artifact/com.azure/azure-identity) client libraries.
 
-This readme explains how to configure and run the sample. For details about the code, see [Quickstart: Vector search in Java](https://learn.microsoft.com/azure/search/search-get-started-vector?tabs=keyless&pivots=java).
-
-## Prerequisites
-
-- Azure AI Search with a Basic tier or higher (required for vector search). You can [create a search service in the portal](https://docs.microsoft.com/azure/search/search-create-service-portal).
-
-- An available region that supports vector search. See [region availability](https://learn.microsoft.com/azure/search/vector-search-overview#availability-and-pricing) for current list.
-
-- Optionally, Azure OpenAI Service for generating embeddings, or use the pre-computed embeddings in this sample.
-
-- Install a Java SDK. This sample was tested on the [Microsoft Build of OpenJDK](https://learn.microsoft.com/java/openjdk/install).
-
-- Choose a strategy for building and running the project using [Maven](https://maven.apache.org/). This sample was tested using [Visual Studio Code](https://code.visualstudio.com/) with the [Java extension](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack).
-
-## Set up the sample
-
-1. Clone or download this sample repository.
-
-1. Extract contents if the download is a zip file. Make sure the files are read-write.
-
-1. Get the [service name and admin API key](https://learn.microsoft.com/azure/search/search-get-started-java#get-a-key-and-url) of your search service. You can find this information in the Azure portal.
-
-1. In Visual Studio Code or another IDE, create a Java project.
-
-   - Press Ctrl-Shift-P to open the command palette.
-   - Search for and then select **Java: Create Java Project**.
-   - Select **No Build**.
-
-1. Open **App.java** and configure access to the search service by editing the variables for `searchServiceEndpoint` and `adminKey`.
-
-## Run the sample
-
-1. In Visual Studio Code, press F5 to rebuild the app and run the program in its entirety.
-
-The console should show the Maven build and testing process and the output of program execution:
-
-- Deletes an index of the same name, if one already exists.
-- Creates an index with vector field configurations using HNSW algorithm.
-- Loads the index with documents containing text content and pre-computed vector embeddings.
-- Executes pure vector searches, single vector searches with filters, and hybrid queries combining vector and text search.
-
-Finally, the Maven process should exit with a success message. 
+**To run this sample:** Follow the step-by-step instructions in [Quickstart: Vector search](https://learn.microsoft.com/azure/search/search-get-started-vector?tabs=keyless&pivots=java).
 
 ## Next steps
 
