@@ -4,7 +4,7 @@ languages:
 - java
 name: Java RAG quickstart for Azure AI Search
 description: |
-  Learn how to implement Retrieval-Augmented Generation (RAG) patterns using Azure AI Search and Azure OpenAI with the Azure SDK for Java.
+  Demonstrates the Retrieval-Augmented Generation (RAG) pattern using Azure AI Search for retrieval and Azure OpenAI for generation.
 products:
 - azure
 - azure-cognitive-search

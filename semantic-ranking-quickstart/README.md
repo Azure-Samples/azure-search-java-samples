@@ -4,7 +4,7 @@ languages:
 - java
 name: Java semantic ranking quickstart for Azure AI Search
 description: |
-  Learn how to create, load, and query an Azure AI Search index with semantic ranking using the Azure SDK for Java.
+  Demonstrates semantic ranking capabilities to improve search relevance using Azure AI Search.
 products:
 - azure
 - azure-cognitive-search

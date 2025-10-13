@@ -4,7 +4,7 @@ languages:
 - java
 name: Java vector search quickstart for Azure AI Search
 description: |
-  Learn how to create, load, and query an Azure AI Search index with vector search using the Azure SDK for Java.
+  Demonstrates vector search capabilities using Azure AI Search with HNSW algorithm.
 products:
 - azure
 - azure-cognitive-search
