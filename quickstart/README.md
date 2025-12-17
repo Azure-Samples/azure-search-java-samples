@@ -54,8 +54,8 @@ The console should show the Maven build and testing process and the output of pr
 - Loads the index with four hotel documents.
 - Executes several  queries.
 
-Finally, the Maven process should exit with a success message. 
+Finally, the Maven process should exit with a success message.
 
-## Next steps
+## Next step
 
 You can learn more about Azure AI Search on the [official documentation site](https://learn.microsoft.com/azure/search).
