@@ -2,13 +2,13 @@
 page_type: sample
 languages:
 - java
-name: Java quickstart for Azure AI Search
+name: Java keyword search quickstart for Azure AI Search
 description: |
   Learn how to create, load, and query an Azure AI Search index using the Azure SDK for Java.
 products:
 - azure
 - azure-cognitive-search
-urlFragment: java-quickstart
+urlFragment: java-quickstart-keyword
 ---
 
 # Java quickstart for Azure AI Search
@@ -17,7 +17,7 @@ urlFragment: java-quickstart
 
 Learn how to create, load, and query a search index on Azure AI Search using Java and the [com.azure:azure-search-documents](https://search.maven.org/artifact/com.azure/azure-search-documents) package.
 
-This readme explains how to configure and run the sample. For details about the code, see [Quickstart: Create search index in Java](https://learn.microsoft.com/azure/search/search-get-started-java).
+This README explains how to configure and run the sample. For details about the code, see [Quickstart: Create search index in Java](https://learn.microsoft.com/azure/search/search-get-started-java).
 
 ## Prerequisites
 
