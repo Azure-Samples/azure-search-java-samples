@@ -2,7 +2,7 @@
 page_type: sample
 languages:
 - java
-name: Java semantic ranking quickstart for Azure AI Search
+name: "Quickstart: Semantic ranking in Azure AI Search using Java"
 description: |
   Demonstrates semantic ranking capabilities to improve search relevance using Azure AI Search.
 products:
@@ -11,7 +11,7 @@ products:
 urlFragment: java-semantic-ranking-quickstart
 ---
 
-# Java semantic ranking quickstart for Azure AI Search
+# Quickstart: Semantic ranking in Azure AI Search using Java
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 

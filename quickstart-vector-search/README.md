@@ -2,7 +2,7 @@
 page_type: sample
 languages:
 - java
-name: Java vector search quickstart for Azure AI Search
+name: "Quickstart: Vector search in Azure AI Search using Java"
 description: |
   Demonstrates vector search capabilities using Azure AI Search with HNSW algorithm.
 products:
@@ -11,7 +11,7 @@ products:
 urlFragment: java-vector-quickstart
 ---
 
-# Java vector search quickstart for Azure AI Search
+# Quickstart: Vector search in Azure AI Search using Java
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 

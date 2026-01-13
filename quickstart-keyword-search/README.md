@@ -2,7 +2,7 @@
 page_type: sample
 languages:
 - java
-name: Java keyword search quickstart for Azure AI Search
+name: "Quickstart: Keyword search in Azure AI Search using Java"
 description: |
   Learn how to create, load, and query an Azure AI Search index using the Azure SDK for Java.
 products:
@@ -11,7 +11,7 @@ products:
 urlFragment: java-quickstart-keyword
 ---
 
-# Java quickstart for Azure AI Search
+# Quickstart: Keyword search in Azure AI Search using Java
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
