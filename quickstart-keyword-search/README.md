@@ -17,7 +17,7 @@ urlFragment: java-quickstart-keyword
 
 Learn how to create, load, and query a search index on Azure AI Search using Java and the [com.azure:azure-search-documents](https://search.maven.org/artifact/com.azure/azure-search-documents) package.
 
-This README explains how to configure and run the sample. For details about the code, see [Quickstart: Create search index in Java](https://learn.microsoft.com/azure/search/search-get-started-java).
+To run this sample, follow the step-by-step instructions in [Quickstart: Full-text search](https://learn.microsoft.com/azure/search/search-get-started-text?pivots=java).
 
 ## Prerequisites
 
@@ -31,9 +31,13 @@ This README explains how to configure and run the sample. For details about the 
 
 1. Clone or download this sample repository.
 
-1. Extract contents if the download is a zip file. Make sure the files are read-write.
+1. Extract contents if the download is a ZIP file. Make sure the files are read-write.
 
-1. Get the [service name and admin API key](https://learn.microsoft.com/azure/search/search-get-started-java#get-a-key-and-url) of your search service. You can find this information in the Azure portal.
+1. Get the name of your search service. You can find the URL on the search service **Overview** page in the Azure portal.
+
+1. Make sure you have permissions to create, load, and query an index: **Search Service Contributor**, **Search Index Data Contributor**, and **Search Index Data Reader**.
+
+1. Run `az login` to sign in to your Azure account using the Azure CLI.
 
 1. In Visual Studio Code or another IDE, create a Java project.
 
@@ -41,7 +45,7 @@ This README explains how to configure and run the sample. For details about the 
    - Search for and then select **Java: Create Java Project**.
    - Select **No Build**.
 
-1. Open **App.java** and configure access to the search service by editing the variables for `searchServiceEndpoint` and `adminKey`.
+1. Open **App.java** and configure access to the search service by editing the variable for `searchServiceEndpoint`.
 
 ## Run the sample
 

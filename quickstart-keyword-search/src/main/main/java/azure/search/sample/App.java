@@ -3,7 +3,8 @@
 
 package azure.search.sample;
 
-import com.azure.core.credential.AzureKeyCredential;
+import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.core.util.Context;
 import com.azure.search.documents.SearchClient;
 import com.azure.search.documents.SearchClientBuilder;
 import com.azure.search.documents.indexes.SearchIndexClient;
@@ -25,20 +26,20 @@ import java.time.LocalTime;
 public class App {
 
     public static void main(String[] args) {
-        // Connection to your search service.
-        // Provide your service name and a valid admin API key.
-        var searchServiceEndpoint = "https://<your-service>.search.windows.net";
-        var adminKey = new AzureKeyCredential("<your-admin-key>");
+        // Connection to your search service using keyless authentication.
+        // Replace with your search service endpoint.
+        var searchServiceEndpoint = "https://<your-search-service>.search.windows.net";
+        var credential = new DefaultAzureCredentialBuilder().build();
         String indexName = "hotels-quickstart-java";
 
         SearchIndexClient searchIndexClient = new SearchIndexClientBuilder()
             .endpoint(searchServiceEndpoint)
-            .credential(adminKey)
+            .credential(credential)
             .buildClient();
 
         SearchClient searchClient = new SearchClientBuilder()
             .endpoint(searchServiceEndpoint)
-            .credential(adminKey)
+            .credential(credential)
             .indexName(indexName)
             .buildClient();
 
@@ -76,7 +77,7 @@ public class App {
         var hotel = new Hotel();
         hotel.hotelId = "1";
         hotel.hotelName = "Stay-Kay City Hotel";
-        hotel.description = "This classic hotel is fully-refurbished and ideally located on the main commercial artery of the city in the heart of New York. A few minutes away is Times Square and the historic centre of the city, as well as other places of interest that make New York one of America's most attractive and cosmopolitan cities.",
+        hotel.description = "This classic hotel is fully-refurbished and ideally located on the main commercial artery of the city in the heart of New York. A few minutes away is Times Square and the historic centre of the city, as well as other places of interest that make New York one of America's most attractive and cosmopolitan cities.";
         hotel.category = "Boutique";
         hotel.tags = new String[] { "view", "air conditioning", "concierge" };
         hotel.parkingIncluded = false;
@@ -110,7 +111,7 @@ public class App {
         hotel = new Hotel();
         hotel.hotelId = "3";
         hotel.hotelName = "Gastronomic Landscape Hotel";
-        hotel.description = "The Gastronomic Hotel stands out for its culinary excellence under the management of William Dough, who advises on and oversees all of the Hotel’s restaurant services.",
+        hotel.description = "The Gastronomic Hotel stands out for its culinary excellence under the management of William Dough, who advises on and oversees all of the Hotel's restaurant services.";
         hotel.category = "Suite";
         hotel.tags = new String[] { "restaurant", "bar", "continental breakfast" };
         hotel.parkingIncluded = true;
