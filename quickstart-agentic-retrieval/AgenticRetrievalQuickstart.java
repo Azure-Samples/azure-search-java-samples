@@ -6,9 +6,14 @@ import com.azure.search.documents.SearchDocument;
 import com.azure.search.documents.indexes.SearchIndexClient;
 import com.azure.search.documents.indexes.SearchIndexClientBuilder;
 import com.azure.search.documents.indexes.models.*;
-import com.azure.search.documents.knowledgebases.KnowledgeBaseRetrievalClient;
-import com.azure.search.documents.knowledgebases.KnowledgeBaseRetrievalClientBuilder;
-import com.azure.search.documents.knowledgebases.models.*;
+import com.azure.search.documents.knowledgebases.SearchKnowledgeBaseClient;
+import com.azure.search.documents.knowledgebases.SearchKnowledgeBaseClientBuilder;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseActivityRecord;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseMessage;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseMessageTextContent;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseReference;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseRetrievalRequest;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseRetrievalResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -19,361 +24,272 @@ import java.util.*;
 
 public class AgenticRetrievalQuickstart {
 
-    // Configuration
-    private static final String SEARCH_ENDPOINT;
-    private static final String AZURE_OPENAI_ENDPOINT;
-    private static final String AZURE_OPENAI_GPT_DEPLOYMENT = "gpt-5-mini";
-    private static final String AZURE_OPENAI_GPT_MODEL = "gpt-5-mini";
-    private static final String AZURE_OPENAI_EMBEDDING_DEPLOYMENT = "text-embedding-3-large";
-    private static final String INDEX_NAME = "earth-at-night";
-    private static final String KNOWLEDGE_SOURCE_NAME = "earth-knowledge-source";
-    private static final String KNOWLEDGE_BASE_NAME = "earth-knowledge-base";
-
-    static {
+    public static void main(String[] args) throws Exception {
+        // Load environment variables from the .env file
+        // Ensure your .env file is in the same directory with the required variables
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        SEARCH_ENDPOINT = dotenv.get("SEARCH_ENDPOINT",
-            "https://contoso-search.search.windows.net");
-        AZURE_OPENAI_ENDPOINT = dotenv.get("AOAI_ENDPOINT",
-            "https://contoso-openai.openai.azure.com/");
-    }
 
-    public static void main(String[] args) {
-        try {
-            System.out.println("Starting Azure AI Search agentic retrieval quickstart...\n");
-
-            TokenCredential credential = new DefaultAzureCredentialBuilder().build();
-
-            SearchIndexClient indexClient = new SearchIndexClientBuilder()
-                .endpoint(SEARCH_ENDPOINT)
-                .credential(credential)
-                .buildClient();
-
-            SearchClient searchClient = new SearchClientBuilder()
-                .endpoint(SEARCH_ENDPOINT)
-                .indexName(INDEX_NAME)
-                .credential(credential)
-                .buildClient();
-
-            // Step 1: Create search index
-            createSearchIndex(indexClient);
-
-            // Step 2: Upload documents
-            uploadDocuments(searchClient);
-
-            // Step 3: Create knowledge source
-            createKnowledgeSource(indexClient);
-
-            // Step 4: Create knowledge base
-            createKnowledgeBase(indexClient);
-
-            // Step 5: Run agentic retrieval
-            runAgenticRetrieval(credential);
-
-            // Step 6: Clean up
-            cleanup(indexClient);
-
-            System.out.println("[DONE] Quickstart completed successfully!");
-
-        } catch (Exception e) {
-            System.err.println("[ERROR] Error in main execution: " + e.getMessage());
-            e.printStackTrace();
+        String searchEndpoint = dotenv.get("SEARCH_ENDPOINT");
+        if (searchEndpoint == null) {
+            throw new IllegalStateException("SEARCH_ENDPOINT isn't set.");
         }
-    }
-
-    private static void createSearchIndex(SearchIndexClient indexClient) {
-        System.out.println("[WAIT] Creating search index...");
-
-        try {
-            try {
-                indexClient.deleteIndex(INDEX_NAME);
-                System.out.println("[DELETE] Deleted existing index '" + INDEX_NAME + "'");
-            } catch (Exception e) {
-                // Index doesn't exist
-            }
-
-            List<SearchField> fields = Arrays.asList(
-                new SearchField("id", SearchFieldDataType.STRING)
-                    .setKey(true)
-                    .setFilterable(true)
-                    .setSortable(true)
-                    .setFacetable(true),
-                new SearchField("page_chunk", SearchFieldDataType.STRING)
-                    .setSearchable(true)
-                    .setFilterable(false)
-                    .setSortable(false)
-                    .setFacetable(false),
-                new SearchField("page_embedding_text_3_large",
-                        SearchFieldDataType.collection(SearchFieldDataType.SINGLE))
-                    .setSearchable(true)
-                    .setFilterable(false)
-                    .setSortable(false)
-                    .setFacetable(false)
-                    .setVectorSearchDimensions(3072)
-                    .setVectorSearchProfileName("hnsw_text_3_large"),
-                new SearchField("page_number", SearchFieldDataType.INT32)
-                    .setFilterable(true)
-                    .setSortable(true)
-                    .setFacetable(true)
-            );
-
-            AzureOpenAIVectorizer vectorizer = new AzureOpenAIVectorizer(
-                    "azure_openai_text_3_large")
-                .setParameters(new AzureOpenAIVectorizerParameters()
-                    .setResourceUrl(AZURE_OPENAI_ENDPOINT)
-                    .setDeploymentName(AZURE_OPENAI_EMBEDDING_DEPLOYMENT)
-                    .setModelName(AzureOpenAIModelName.TEXT_EMBEDDING_3_LARGE));
-
-            VectorSearch vectorSearch = new VectorSearch()
-                .setProfiles(Arrays.asList(
-                    new VectorSearchProfile("hnsw_text_3_large", "alg")
-                        .setVectorizerName("azure_openai_text_3_large")
-                ))
-                .setAlgorithms(Arrays.asList(
-                    new HnswAlgorithmConfiguration("alg")
-                ))
-                .setVectorizers(Arrays.asList(vectorizer));
-
-            SemanticSearch semanticSearch = new SemanticSearch()
-                .setDefaultConfigurationName("semantic_config")
-                .setConfigurations(Arrays.asList(
-                    new SemanticConfiguration("semantic_config",
-                        new SemanticPrioritizedFields()
-                            .setContentFields(Arrays.asList(
-                                new SemanticField("page_chunk")
-                            ))
-                    )
-                ));
-
-            SearchIndex index = new SearchIndex(INDEX_NAME)
-                .setFields(fields)
-                .setVectorSearch(vectorSearch)
-                .setSemanticSearch(semanticSearch);
-
-            indexClient.createOrUpdateIndex(index);
-            System.out.println("[DONE] Index '" + INDEX_NAME + "' created successfully.");
-
-        } catch (Exception e) {
-            System.err.println("[ERROR] Error creating index: " + e.getMessage());
-            throw new RuntimeException(e);
+        String aoaiEndpoint = dotenv.get("AOAI_ENDPOINT");
+        if (aoaiEndpoint == null) {
+            throw new IllegalStateException("AOAI_ENDPOINT isn't set.");
         }
-    }
 
-    private static void uploadDocuments(SearchClient searchClient) {
-        System.out.println("[WAIT] Uploading documents...");
+        String aoaiEmbeddingModel = "text-embedding-3-large";
+        String aoaiEmbeddingDeployment = "text-embedding-3-large";
+        String aoaiGptModel = "gpt-5-mini";
+        String aoaiGptDeployment = "gpt-5-mini";
 
-        try {
-            List<SearchDocument> documents = fetchEarthAtNightDocuments();
+        String indexName = "earth-at-night";
+        String knowledgeSourceName = "earth-knowledge-source";
+        String knowledgeBaseName = "earth-knowledge-base";
 
-            searchClient.uploadDocuments(documents);
-            System.out.println("[DONE] Uploaded " + documents.size()
-                + " documents successfully.");
+        TokenCredential credential = new DefaultAzureCredentialBuilder().build();
 
-            System.out.println("[WAIT] Waiting for document indexing to complete...");
-            Thread.sleep(5000);
-            System.out.println("[DONE] Document indexing completed.");
+        // Define fields for the index
+        List<SearchField> fields = Arrays.asList(
+            new SearchField("id", SearchFieldDataType.STRING)
+                .setKey(true)
+                .setFilterable(true)
+                .setSortable(true)
+                .setFacetable(true),
+            new SearchField("page_chunk", SearchFieldDataType.STRING)
+                .setFilterable(false)
+                .setSortable(false)
+                .setFacetable(false),
+            new SearchField("page_embedding_text_3_large",
+                    SearchFieldDataType.collection(SearchFieldDataType.SINGLE))
+                .setVectorSearchDimensions(3072)
+                .setVectorSearchProfileName("hnsw_text_3_large"),
+            new SearchField("page_number", SearchFieldDataType.INT32)
+                .setFilterable(true)
+                .setSortable(true)
+                .setFacetable(true)
+        );
 
-        } catch (Exception e) {
-            System.err.println("[ERROR] Error uploading documents: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
+        // Define a vectorizer
+        AzureOpenAIVectorizer vectorizer = new AzureOpenAIVectorizer(
+                "azure_openai_text_3_large")
+            .setParameters(new AzureOpenAIVectorizerParameters()
+                .setResourceUrl(aoaiEndpoint)
+                .setDeploymentName(aoaiEmbeddingDeployment)
+                .setModelName(AzureOpenAIModelName.fromString(aoaiEmbeddingModel)));
 
-    private static List<SearchDocument> fetchEarthAtNightDocuments() {
-        System.out.println("[WAIT] Fetching Earth at Night documents from GitHub...");
+        // Define a vector search profile and algorithm
+        VectorSearch vectorSearch = new VectorSearch()
+            .setProfiles(Arrays.asList(
+                new VectorSearchProfile("hnsw_text_3_large", "alg")
+                    .setVectorizerName("azure_openai_text_3_large")
+            ))
+            .setAlgorithms(Arrays.asList(
+                new HnswAlgorithmConfiguration("alg")
+            ))
+            .setVectorizers(Arrays.asList(vectorizer));
 
-        String documentsUrl = "https://raw.githubusercontent.com/Azure-Samples/"
+        // Define a semantic configuration
+        SemanticSearch semanticSearch = new SemanticSearch()
+            .setDefaultConfigurationName("semantic_config")
+            .setConfigurations(Arrays.asList(
+                new SemanticConfiguration("semantic_config",
+                    new SemanticPrioritizedFields()
+                        .setContentFields(Arrays.asList(
+                            new SemanticField("page_chunk")
+                        ))
+                )
+            ));
+
+        // Create the index
+        SearchIndex index = new SearchIndex(indexName)
+            .setFields(fields)
+            .setVectorSearch(vectorSearch)
+            .setSemanticSearch(semanticSearch);
+
+        // Create the index client, deleting and recreating the index if it exists
+        SearchIndexClient indexClient = new SearchIndexClientBuilder()
+            .endpoint(searchEndpoint)
+            .credential(credential)
+            .buildClient();
+
+        indexClient.createOrUpdateIndex(index);
+        System.out.println("Index '" + indexName + "' created or updated successfully.");
+
+        // Upload sample documents from the GitHub URL
+        String url = "https://raw.githubusercontent.com/Azure-Samples/"
             + "azure-search-sample-data/refs/heads/main/nasa-e-book/"
             + "earth-at-night-json/documents.json";
 
-        try {
-            java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
-            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                .uri(URI.create(documentsUrl))
-                .build();
+        java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
+        java.net.http.HttpRequest httpRequest = java.net.http.HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .build();
 
-            java.net.http.HttpResponse<String> response = httpClient.send(request,
-                java.net.http.HttpResponse.BodyHandlers.ofString());
+        java.net.http.HttpResponse<String> response = httpClient.send(httpRequest,
+            java.net.http.HttpResponse.BodyHandlers.ofString());
 
-            if (response.statusCode() != 200) {
-                throw new IOException("Failed to fetch documents: "
-                    + response.statusCode());
-            }
+        if (response.statusCode() != 200) {
+            throw new IOException("Failed to fetch documents: " + response.statusCode());
+        }
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonArray = mapper.readTree(response.body());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonArray = mapper.readTree(response.body());
 
-            List<SearchDocument> documents = new ArrayList<>();
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JsonNode doc = jsonArray.get(i);
-                SearchDocument searchDoc = new SearchDocument();
+        List<SearchDocument> documents = new ArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonNode doc = jsonArray.get(i);
+            SearchDocument searchDoc = new SearchDocument();
 
-                searchDoc.put("id", doc.has("id")
-                    ? doc.get("id").asText() : String.valueOf(i + 1));
-                searchDoc.put("page_chunk", doc.has("page_chunk")
-                    ? doc.get("page_chunk").asText() : "");
+            searchDoc.put("id", doc.has("id")
+                ? doc.get("id").asText() : String.valueOf(i + 1));
+            searchDoc.put("page_chunk", doc.has("page_chunk")
+                ? doc.get("page_chunk").asText() : "");
 
-                if (doc.has("page_embedding_text_3_large")
-                        && doc.get("page_embedding_text_3_large").isArray()) {
-                    List<Double> embeddings = new ArrayList<>();
-                    for (JsonNode embedding
-                            : doc.get("page_embedding_text_3_large")) {
-                        embeddings.add(embedding.asDouble());
-                    }
-                    searchDoc.put("page_embedding_text_3_large", embeddings);
-                } else {
-                    List<Double> fallback = new ArrayList<>();
-                    for (int j = 0; j < 3072; j++) {
-                        fallback.add(0.1);
-                    }
-                    searchDoc.put("page_embedding_text_3_large", fallback);
+            if (doc.has("page_embedding_text_3_large")
+                    && doc.get("page_embedding_text_3_large").isArray()) {
+                List<Double> embeddings = new ArrayList<>();
+                for (JsonNode embedding : doc.get("page_embedding_text_3_large")) {
+                    embeddings.add(embedding.asDouble());
                 }
-
-                searchDoc.put("page_number", doc.has("page_number")
-                    ? doc.get("page_number").asInt() : i + 1);
-
-                documents.add(searchDoc);
+                searchDoc.put("page_embedding_text_3_large", embeddings);
+            } else {
+                List<Double> fallback = new ArrayList<>();
+                for (int j = 0; j < 3072; j++) {
+                    fallback.add(0.1);
+                }
+                searchDoc.put("page_embedding_text_3_large", fallback);
             }
 
-            System.out.println("[DONE] Fetched " + documents.size()
-                + " documents from GitHub");
-            return documents;
+            searchDoc.put("page_number", doc.has("page_number")
+                ? doc.get("page_number").asInt() : i + 1);
 
-        } catch (Exception e) {
-            System.err.println("[ERROR] Error fetching documents: "
-                + e.getMessage());
-            throw new RuntimeException(e);
+            documents.add(searchDoc);
         }
-    }
 
-    private static void createKnowledgeSource(SearchIndexClient indexClient) {
-        System.out.println("[WAIT] Creating knowledge source...");
+        SearchClient searchClient = new SearchClientBuilder()
+            .endpoint(searchEndpoint)
+            .indexName(indexName)
+            .credential(credential)
+            .buildClient();
 
-        try {
-            SearchIndexKnowledgeSource knowledgeSource =
-                new SearchIndexKnowledgeSource(
-                    KNOWLEDGE_SOURCE_NAME,
-                    new SearchIndexKnowledgeSourceParameters(INDEX_NAME)
-                        .setSourceDataFields(Arrays.asList(
-                            new SearchIndexFieldReference("id"),
-                            new SearchIndexFieldReference("page_chunk"),
-                            new SearchIndexFieldReference("page_number")
-                        ))
-                );
+        searchClient.uploadDocuments(documents);
+        System.out.println("Documents uploaded to index '" + indexName + "' successfully.");
 
-            indexClient.createOrUpdateKnowledgeSource(knowledgeSource);
-            System.out.println("[DONE] Knowledge source '"
-                + KNOWLEDGE_SOURCE_NAME + "' created successfully.");
+        // Create a knowledge source
+        SearchIndexKnowledgeSource indexKnowledgeSource =
+            new SearchIndexKnowledgeSource(
+                knowledgeSourceName,
+                new SearchIndexKnowledgeSourceParameters(indexName)
+                    .setSourceDataFields(Arrays.asList(
+                        new SearchIndexFieldReference("id"),
+                        new SearchIndexFieldReference("page_chunk"),
+                        new SearchIndexFieldReference("page_number")
+                    ))
+            );
 
-        } catch (Exception e) {
-            System.err.println("[ERROR] Error creating knowledge source: "
-                + e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
+        indexClient.createOrUpdateKnowledgeSource(indexKnowledgeSource);
+        System.out.println("Knowledge source '" + knowledgeSourceName
+            + "' created or updated successfully.");
 
-    private static void createKnowledgeBase(SearchIndexClient indexClient) {
-        System.out.println("[WAIT] Creating knowledge base...");
+        // Create a knowledge base
+        AzureOpenAIVectorizerParameters openAiParameters =
+            new AzureOpenAIVectorizerParameters()
+                .setResourceUrl(aoaiEndpoint)
+                .setDeploymentName(aoaiGptDeployment)
+                .setModelName(AzureOpenAIModelName.fromString(aoaiGptModel));
 
-        try {
-            KnowledgeBaseAzureOpenAIModel model =
-                new KnowledgeBaseAzureOpenAIModel(
-                    new AzureOpenAIVectorizerParameters()
-                        .setResourceUrl(AZURE_OPENAI_ENDPOINT)
-                        .setDeploymentName(AZURE_OPENAI_GPT_DEPLOYMENT)
-                        .setModelName(AZURE_OPENAI_GPT_MODEL)
-                );
+        KnowledgeBaseAzureOpenAIModel model =
+            new KnowledgeBaseAzureOpenAIModel(openAiParameters);
 
-            KnowledgeBase knowledgeBase = new KnowledgeBase(
-                    KNOWLEDGE_BASE_NAME,
-                    Arrays.asList(new KnowledgeSourceReference(
-                        KNOWLEDGE_SOURCE_NAME))
-                )
-                .setRetrievalReasoningEffort(
-                    new KnowledgeRetrievalLowReasoningEffort())
-                .setOutputMode(
-                    KnowledgeRetrievalOutputMode.ANSWER_SYNTHESIS)
-                .setAnswerInstructions(
-                    "Provide a two sentence concise and informative answer "
-                    + "based on the retrieved documents.")
-                .setModels(Arrays.asList(model));
+        KnowledgeBase knowledgeBase = new KnowledgeBase(
+                knowledgeBaseName,
+                Arrays.asList(new KnowledgeSourceReference(knowledgeSourceName))
+            )
+            .setRetrievalReasoningEffort(
+                new KnowledgeRetrievalLowReasoningEffort())
+            .setOutputMode(
+                KnowledgeRetrievalOutputMode.ANSWER_SYNTHESIS)
+            .setAnswerInstructions(
+                "Provide a two sentence concise and informative answer "
+                + "based on the retrieved documents.")
+            .setModels(Arrays.asList(model));
 
-            indexClient.createOrUpdateKnowledgeBase(knowledgeBase);
-            System.out.println("[DONE] Knowledge base '"
-                + KNOWLEDGE_BASE_NAME + "' created successfully.");
-
-        } catch (Exception e) {
-            System.err.println("[ERROR] Error creating knowledge base: "
-                + e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void runAgenticRetrieval(TokenCredential credential) {
-        System.out.println("[SEARCH] Running agentic retrieval...");
+        indexClient.createOrUpdateKnowledgeBase(knowledgeBase);
+        System.out.println("Knowledge base '" + knowledgeBaseName
+            + "' created or updated successfully.");
 
         // Set up messages
-        List<Map<String, String>> messages = new ArrayList<>();
+        String instructions = "A Q&A agent that can answer questions about the "
+            + "Earth at night.\n"
+            + "If you don't have the answer, respond with \"I don't know\".";
 
+        List<Map<String, String>> messages = new ArrayList<>();
         Map<String, String> systemMessage = new HashMap<>();
         systemMessage.put("role", "system");
-        systemMessage.put("content",
-            "A Q&A agent that can answer questions about the Earth at night.\n"
-            + "If you don't have the answer, respond with \"I don't know\".");
+        systemMessage.put("content", instructions);
         messages.add(systemMessage);
 
-        // Build retrieval client
-        KnowledgeBaseRetrievalClient baseClient =
-            new KnowledgeBaseRetrievalClientBuilder()
-                .endpoint(SEARCH_ENDPOINT)
-                .knowledgeBaseName(KNOWLEDGE_BASE_NAME)
-                .credential(credential)
+        // Run agentic retrieval
+        SearchKnowledgeBaseClient baseClient =
+            new SearchKnowledgeBaseClientBuilder()
+                .endpoint(searchEndpoint)
+                .knowledgeBaseName(knowledgeBaseName)
+                .credential(new DefaultAzureCredentialBuilder().build())
                 .buildClient();
 
-        // First query
-        messages.add(Map.of("role", "user", "content",
-            "Why do suburban belts display larger December brightening than "
-            + "urban cores even though absolute light levels are higher "
-            + "downtown? Why is the Phoenix nighttime street grid is so "
-            + "sharply visible from space, whereas large stretches of the "
-            + "interstate between midwestern cities remain comparatively "
-            + "dim?"));
+        String query = "Why do suburban belts display larger December brightening "
+            + "than urban cores even though absolute light levels are higher "
+            + "downtown? Why is the Phoenix nighttime street grid is so sharply "
+            + "visible from space, whereas large stretches of the interstate "
+            + "between midwestern cities remain comparatively dim?";
 
-        KnowledgeBaseRetrievalResult result = retrieve(baseClient, messages);
+        messages.add(Map.of("role", "user", "content", query));
+
+        System.out.println("Running the query..." + query);
+        KnowledgeBaseRetrievalResponse retrievalResult = retrieve(baseClient, messages);
 
         String responseText = ((KnowledgeBaseMessageTextContent)
-            result.getResponse().get(0).getContent().get(0)).getText();
+            retrievalResult.getResponse().get(0).getContent().get(0)).getText();
         messages.add(Map.of("role", "assistant", "content", responseText));
 
-        printResult(responseText, result);
+        // Print the response, activity, and references
+        printResult(responseText, retrievalResult);
 
-        // Continue conversation
-        System.out.println("\n === Continuing Conversation ===");
-        System.out.println("[QUESTION] Follow-up question: "
-            + "How do I find lava at night?");
+        // Continue the conversation
+        String nextQuery = "How do I find lava at night?";
+        System.out.println("Continue the conversation with this query: " + nextQuery);
+        messages.add(Map.of("role", "user", "content", nextQuery));
 
-        messages.add(Map.of("role", "user", "content",
-            "How do I find lava at night?"));
+        retrievalResult = retrieve(baseClient, messages);
 
-        KnowledgeBaseRetrievalResult followUpResult =
-            retrieve(baseClient, messages);
+        responseText = ((KnowledgeBaseMessageTextContent)
+            retrievalResult.getResponse().get(0).getContent().get(0)).getText();
+        messages.add(Map.of("role", "assistant", "content", responseText));
 
-        String followUpResponseText = ((KnowledgeBaseMessageTextContent)
-            followUpResult.getResponse().get(0).getContent().get(0)).getText();
+        // Print the new response, activity, and references
+        printResult(responseText, retrievalResult);
 
-        printResult(followUpResponseText, followUpResult);
+        // Clean up resources
+        indexClient.deleteKnowledgeBase(knowledgeBaseName);
+        System.out.println("Knowledge base '" + knowledgeBaseName
+            + "' deleted successfully.");
 
-        System.out.println("\n === Conversation Complete ===");
+        indexClient.deleteKnowledgeSource(knowledgeSourceName);
+        System.out.println("Knowledge source '" + knowledgeSourceName
+            + "' deleted successfully.");
+
+        indexClient.deleteIndex(indexName);
+        System.out.println("Index '" + indexName + "' deleted successfully.");
     }
 
-    private static KnowledgeBaseRetrievalResult retrieve(
-            KnowledgeBaseRetrievalClient client,
+    private static KnowledgeBaseRetrievalResponse retrieve(
+            SearchKnowledgeBaseClient client,
             List<Map<String, String>> messages) {
-        KnowledgeBaseRetrievalRequest request =
-            new KnowledgeBaseRetrievalRequest();
-
+        List<KnowledgeBaseMessage> kbMessages = new ArrayList<>();
         for (Map<String, String> msg : messages) {
             if (!"system".equals(msg.get("role"))) {
-                request.getMessages().add(
+                kbMessages.add(
                     new KnowledgeBaseMessage(Arrays.asList(
                         new KnowledgeBaseMessageTextContent(
                             msg.get("content"))
@@ -381,14 +297,35 @@ public class AgenticRetrievalQuickstart {
                 );
             }
         }
-        request.setRetrievalReasoningEffort(
-            new KnowledgeRetrievalLowReasoningEffort());
 
-        return client.retrieveFromKnowledgeBase(request);
+        KnowledgeBaseRetrievalRequest request =
+            new KnowledgeBaseRetrievalRequest();
+        request.setMessages(kbMessages);
+        request.setRetrievalReasoningEffort(
+            new com.azure.search.documents.knowledgebases.models
+                .KnowledgeRetrievalLowReasoningEffort());
+
+        return client.retrieve(request, null);
+    }
+
+    private static String toJsonString(com.azure.json.JsonSerializable<?> obj) {
+        try {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            try (com.azure.json.JsonWriter jw =
+                    com.azure.json.JsonProviders.createWriter(sw)) {
+                obj.toJson(jw);
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            Object json = mapper.readValue(sw.toString(), Object.class);
+            return mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(json);
+        } catch (Exception e) {
+            return obj.toString();
+        }
     }
 
     private static void printResult(String responseText,
-            KnowledgeBaseRetrievalResult result) {
+            KnowledgeBaseRetrievalResponse result) {
         System.out.println("Response:");
         System.out.println(responseText);
 
@@ -396,40 +333,14 @@ public class AgenticRetrievalQuickstart {
         for (KnowledgeBaseActivityRecord activity : result.getActivity()) {
             System.out.println("Activity Type: "
                 + activity.getClass().getSimpleName());
-            System.out.println(activity);
+            System.out.println(toJsonString(activity));
         }
 
         System.out.println("References:");
         for (KnowledgeBaseReference reference : result.getReferences()) {
             System.out.println("Reference Type: "
                 + reference.getClass().getSimpleName());
-            System.out.println(reference);
-        }
-    }
-
-    private static void cleanup(SearchIndexClient indexClient) {
-        try {
-            indexClient.deleteKnowledgeBase(KNOWLEDGE_BASE_NAME);
-            System.out.println("Knowledge base '" + KNOWLEDGE_BASE_NAME
-                + "' deleted successfully.");
-        } catch (Exception e) {
-            System.err.println("[WARN] " + e.getMessage());
-        }
-
-        try {
-            indexClient.deleteKnowledgeSource(KNOWLEDGE_SOURCE_NAME);
-            System.out.println("Knowledge source '" + KNOWLEDGE_SOURCE_NAME
-                + "' deleted successfully.");
-        } catch (Exception e) {
-            System.err.println("[WARN] " + e.getMessage());
-        }
-
-        try {
-            indexClient.deleteIndex(INDEX_NAME);
-            System.out.println("Index '" + INDEX_NAME
-                + "' deleted successfully.");
-        } catch (Exception e) {
-            System.err.println("[WARN] " + e.getMessage());
+            System.out.println(toJsonString(reference));
         }
     }
 }
