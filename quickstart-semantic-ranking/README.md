@@ -1,13 +1,13 @@
 ---
 page_type: sample
 languages:
-- java
+  - java
 name: "Quickstart: Semantic ranking in Azure AI Search using Java"
 description: |
   Demonstrates semantic ranking capabilities to improve search relevance using Azure AI Search.
 products:
-- azure
-- azure-cognitive-search
+  - azure
+  - azure-cognitive-search
 urlFragment: java-semantic-ranking-quickstart
 ---
 
@@ -15,12 +15,25 @@ urlFragment: java-semantic-ranking-quickstart
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-Semantic ranking capabilities to improve search relevance using Azure AI Search. This Java sample demonstrates how to create an index with a semantic configuration, upload documents to the index, and execute queries with semantic ranking to get improved relevance scoring and semantic captions. Requires a search service on the Standard pricing tier or higher with semantic ranking enabled.
+This sample demonstrates how to set up semantic ranking. You add a semantic configuration to a search index, and then you add semantic parameters to a query.
 
-This sample is built on the [Microsoft Build of OpenJDK](https://learn.microsoft.com/java/openjdk/install) using the [Maven](https://maven.apache.org/) build system. This sample has dependencies on the [Azure AI Search](https://search.maven.org/artifact/com.azure/azure-search-documents) and [Azure Identity](https://search.maven.org/artifact/com.azure/azure-identity) client libraries.
+## What's in this sample
 
-To run this sample, follow the step-by-step instructions in [Quickstart: Semantic ranking](https://learn.microsoft.com/azure/search/search-get-started-semantic?pivots=java).
+| File | Description |
+|------|-------------|
+| `pom.xml` | Project file that defines dependencies and build settings |
+| `application.properties` | Configuration file for search service endpoint |
+| `SearchConfig.java` | Configuration class for search service connection |
+| `GetIndexSettings.java` | Retrieves index schema and semantic configuration |
+| `UpdateIndexSettings.java` | Adds semantic configuration to an index |
+| `SemanticQuery.java` | Runs basic semantic ranking queries |
+| `SemanticQueryWithCaptions.java` | Runs semantic queries with captions and highlights |
+| `SemanticAnswer.java` | Returns semantic answers from query results |
+
+## Documentation
+
+This sample accompanies [Quickstart: Semantic ranking using Java](https://learn.microsoft.com/azure/search/search-get-started-semantic?pivots=java). Follow the documentation for prerequisites, setup instructions, and detailed explanations.
 
 ## Next step
 
-You can learn more about Azure AI Search and semantic ranking on the [official documentation site](https://learn.microsoft.com/azure/search) and [semantic ranking overview](https://learn.microsoft.com/azure/search/semantic-search-overview).
+You can learn more about Azure AI Search on the [official documentation site](https://learn.microsoft.com/azure/search).

@@ -1,13 +1,13 @@
 ---
 page_type: sample
 languages:
-- java
+  - java
 name: "Quickstart: Vector search in Azure AI Search using Java"
 description: |
   Demonstrates vector search capabilities using Azure AI Search with HNSW algorithm.
 products:
-- azure
-- azure-cognitive-search
+  - azure
+  - azure-cognitive-search
 urlFragment: java-vector-quickstart
 ---
 
@@ -15,12 +15,24 @@ urlFragment: java-vector-quickstart
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-Vector search capabilities using Azure AI Search with the HNSW algorithm. This Java sample demonstrates how to create an index with vector field configurations, upload documents with pre-computed embeddings to the index, and execute vector similarity searches and hybrid queries. Requires a search service on any pricing tier, though Basic or higher is recommended for larger data files.
+This sample demonstrates the fundamentals of vector search, including creating a vector index, loading documents with embeddings, and running vector and hybrid queries.
 
-This sample is built on Java 21 (LTS) from the [Microsoft Build of OpenJDK](https://learn.microsoft.com/java/openjdk/install) using the [Maven](https://maven.apache.org/) build system. This sample has dependencies on the [Azure AI Search](https://search.maven.org/artifact/com.azure/azure-search-documents) and [Azure Identity](https://search.maven.org/artifact/com.azure/azure-identity) client libraries.
+## What's in this sample
 
-To run this sample, follow the step-by-step instructions in [Quickstart: Vector search](https://learn.microsoft.com/azure/search/search-get-started-vector?tabs=keyless&pivots=java).
+| File | Description |
+|------|-------------|
+| `pom.xml` | Project file that defines dependencies and build settings |
+| `application.properties` | Configuration file for search service endpoint |
+| `CreateIndex.java` | Creates a search index with vector field configurations |
+| `DeleteIndex.java` | Deletes an existing search index |
+| `UploadDocuments.java` | Uploads documents with precomputed embeddings |
+| `QueryVector.java` | Precomputed sample query vector |
+| `Search*.java` | Runs vector, hybrid, and semantic hybrid queries |
+
+## Documentation
+
+This sample accompanies [Quickstart: Vector search using Java](https://learn.microsoft.com/azure/search/search-get-started-vector?pivots=java). Follow the documentation for prerequisites, setup instructions, and detailed explanations.
 
 ## Next step
 
-You can learn more about Azure AI Search and vector search on the [official documentation site](https://learn.microsoft.com/azure/search) and [vector search overview](https://learn.microsoft.com/azure/search/vector-search-overview).
+You can learn more about Azure AI Search on the [official documentation site](https://learn.microsoft.com/azure/search).
