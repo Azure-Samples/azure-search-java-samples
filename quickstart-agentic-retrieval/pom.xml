@@ -4,7 +4,7 @@
     <artifactId>azuresearchquickstart</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <build>
-        <sourceDirectory>src</sourceDirectory>
+        <sourceDirectory>${project.basedir}</sourceDirectory>
         <plugins>
         <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -20,17 +20,17 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-search-documents</artifactId>
-            <version>11.9.0-beta.1</version>
+            <version>12.1.0-beta.1</version>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-core</artifactId>
-            <version>1.53.0</version>
+            <version>1.58.0</version>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-identity</artifactId>
-            <version>1.15.1</version>
+            <version>1.18.3</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
