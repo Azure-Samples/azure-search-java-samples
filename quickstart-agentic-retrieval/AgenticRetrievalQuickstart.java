@@ -2,18 +2,22 @@ import com.azure.core.credential.TokenCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.search.documents.SearchClient;
 import com.azure.search.documents.SearchClientBuilder;
-import com.azure.search.documents.SearchDocument;
 import com.azure.search.documents.indexes.SearchIndexClient;
 import com.azure.search.documents.indexes.SearchIndexClientBuilder;
 import com.azure.search.documents.indexes.models.*;
-import com.azure.search.documents.knowledgebases.SearchKnowledgeBaseClient;
-import com.azure.search.documents.knowledgebases.SearchKnowledgeBaseClientBuilder;
+import com.azure.search.documents.knowledgebases.KnowledgeBaseRetrievalClient;
+import com.azure.search.documents.knowledgebases.KnowledgeBaseRetrievalClientBuilder;
 import com.azure.search.documents.knowledgebases.models.KnowledgeBaseActivityRecord;
 import com.azure.search.documents.knowledgebases.models.KnowledgeBaseMessage;
 import com.azure.search.documents.knowledgebases.models.KnowledgeBaseMessageTextContent;
 import com.azure.search.documents.knowledgebases.models.KnowledgeBaseReference;
-import com.azure.search.documents.knowledgebases.models.KnowledgeBaseRetrievalRequest;
-import com.azure.search.documents.knowledgebases.models.KnowledgeBaseRetrievalResponse;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseRetrievalOptions;
+import com.azure.search.documents.knowledgebases.models.KnowledgeBaseRetrievalResult;
+import com.azure.search.documents.knowledgebases.models.KnowledgeRetrievalLowReasoningEffort;
+import com.azure.search.documents.knowledgebases.models.KnowledgeRetrievalOutputMode;
+import com.azure.search.documents.models.IndexAction;
+import com.azure.search.documents.models.IndexActionType;
+import com.azure.search.documents.models.IndexDocumentsBatch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -102,8 +106,7 @@ public class AgenticRetrievalQuickstart {
             ));
 
         // Create the index
-        SearchIndex index = new SearchIndex(indexName)
-            .setFields(fields)
+        SearchIndex index = new SearchIndex(indexName, fields)
             .setVectorSearch(vectorSearch)
             .setSemanticSearch(semanticSearch);
 
@@ -136,10 +139,10 @@ public class AgenticRetrievalQuickstart {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = mapper.readTree(response.body());
 
-        List<SearchDocument> documents = new ArrayList<>();
+        List<IndexAction> actions = new ArrayList<>();
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonNode doc = jsonArray.get(i);
-            SearchDocument searchDoc = new SearchDocument();
+            Map<String, Object> searchDoc = new HashMap<>();
 
             searchDoc.put("id", doc.has("id")
                 ? doc.get("id").asText() : String.valueOf(i + 1));
@@ -164,7 +167,9 @@ public class AgenticRetrievalQuickstart {
             searchDoc.put("page_number", doc.has("page_number")
                 ? doc.get("page_number").asInt() : i + 1);
 
-            documents.add(searchDoc);
+            actions.add(new IndexAction()
+                .setActionType(IndexActionType.UPLOAD)
+                .setAdditionalProperties(searchDoc));
         }
 
         SearchClient searchClient = new SearchClientBuilder()
@@ -173,7 +178,7 @@ public class AgenticRetrievalQuickstart {
             .credential(credential)
             .buildClient();
 
-        searchClient.uploadDocuments(documents);
+        searchClient.indexDocuments(new IndexDocumentsBatch(actions));
         System.out.println("Documents uploaded to index '" + indexName + "' successfully.");
 
         // Create a knowledge source
@@ -231,8 +236,8 @@ public class AgenticRetrievalQuickstart {
         messages.add(systemMessage);
 
         // Run agentic retrieval
-        SearchKnowledgeBaseClient baseClient =
-            new SearchKnowledgeBaseClientBuilder()
+        KnowledgeBaseRetrievalClient baseClient =
+            new KnowledgeBaseRetrievalClientBuilder()
                 .endpoint(searchEndpoint)
                 .knowledgeBaseName(knowledgeBaseName)
                 .credential(new DefaultAzureCredentialBuilder().build())
@@ -247,7 +252,7 @@ public class AgenticRetrievalQuickstart {
         messages.add(Map.of("role", "user", "content", query));
 
         System.out.println("Running the query..." + query);
-        KnowledgeBaseRetrievalResponse retrievalResult = retrieve(baseClient, messages);
+        KnowledgeBaseRetrievalResult retrievalResult = retrieve(baseClient, messages);
 
         String responseText = ((KnowledgeBaseMessageTextContent)
             retrievalResult.getResponse().get(0).getContent().get(0)).getText();
@@ -283,8 +288,8 @@ public class AgenticRetrievalQuickstart {
         System.out.println("Index '" + indexName + "' deleted successfully.");
     }
 
-    private static KnowledgeBaseRetrievalResponse retrieve(
-            SearchKnowledgeBaseClient client,
+    private static KnowledgeBaseRetrievalResult retrieve(
+            KnowledgeBaseRetrievalClient client,
             List<Map<String, String>> messages) {
         List<KnowledgeBaseMessage> kbMessages = new ArrayList<>();
         for (Map<String, String> msg : messages) {
@@ -298,14 +303,13 @@ public class AgenticRetrievalQuickstart {
             }
         }
 
-        KnowledgeBaseRetrievalRequest request =
-            new KnowledgeBaseRetrievalRequest();
+        KnowledgeBaseRetrievalOptions request =
+            new KnowledgeBaseRetrievalOptions();
         request.setMessages(kbMessages);
         request.setRetrievalReasoningEffort(
-            new com.azure.search.documents.knowledgebases.models
-                .KnowledgeRetrievalLowReasoningEffort());
+            new KnowledgeRetrievalLowReasoningEffort());
 
-        return client.retrieve(request, null);
+        return client.retrieve(request);
     }
 
     private static String toJsonString(com.azure.json.JsonSerializable<?> obj) {
@@ -325,7 +329,7 @@ public class AgenticRetrievalQuickstart {
     }
 
     private static void printResult(String responseText,
-            KnowledgeBaseRetrievalResponse result) {
+            KnowledgeBaseRetrievalResult result) {
         System.out.println("Response:");
         System.out.println(responseText);
 
